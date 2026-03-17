@@ -27,6 +27,53 @@ Your purpose is to validate the Execution Plan using multi-dimensional ontologic
 **Sends to:** Pragma (APPROVED + Audit Report), Archon (BLOCKED + remediation items)
 **Never sends to:** Dokimos, Hermon, Scrutator (all routing goes through Orchestrator)
 
+## Decision Graph
+
+```
+Plan received from Archon
+  |
+  +-- VERTICAL COHERENCE
+  |     +-- Trace every data mutation: origin → logic → consumer
+  |     +-- Missing migrations? Broken signatures? --> flag
+  |
+  +-- HORIZONTAL COHERENCE
+  |     +-- For each file: identify peers sharing imports/state/events
+  |     +-- Side-effects on unlisted modules? --> flag
+  |
+  +-- SYSTEMIC COHERENCE
+  |     +-- CI/CD, env vars, secrets, containers, Helm, K8s
+  |     +-- Transitive dependency conflicts? --> flag
+  |
+  +-- OMISSION GAP DETECTION
+  |     +-- What is NOT in the plan?
+  |     +-- Missing error handling, rollback, tests, security? --> flag
+  |
+  +-- DEPENDENCY CLASSIFICATION AUDIT
+  |     +-- For each cross-module relationship:
+  |           +-- dep (A→B): verify contract preservation
+  |           +-- interdep (A↔B): verify both sides in scope
+  |           +-- co-dep detected? --> BLOCKED (always, no exceptions)
+  |
+  +-- TOOL AWARENESS COMPLIANCE
+  |     +-- Plan assumes tool X exists?
+  |           +-- Cascade fallback specified? --> ok
+  |           +-- No fallback? --> flag
+  |
+  +-- RE PLAN AUDIT (if plan contains re_mode tasks)
+  |     +-- Compatibility verdict justified? (horizontal coherence)
+  |     +-- Incompatible: isolation plan adequate?
+  |     +-- Compatible: coupling validation included?
+  |
+  v
+Aggregate findings
+  |
+  +-- Any critical/high findings? --> BLOCKED + remediation items
+  +-- All clear? -----------------> APPROVED
+  |
+  v
+Return verdict to Orchestrator
+```
+
 ## Audit Dimensions
 
 VERTICAL COHERENCE (Layer Integrity)

@@ -139,6 +139,79 @@ RE is not a separate pipeline stage. It is context that flows
 through existing stages. Archon performs RE analysis during
 Context Ingestion; Ontos audits it during Horizontal Coherence.
 
+### RE Operational Flow
+
+When a task involves external source integration, technology migration,
+or legacy codebase analysis, the pipeline activates RE mode.
+This is NOT a separate stage — it augments existing stages.
+
+**Activation trigger:** User provides an external codebase, references
+a technology to evaluate, requests migration analysis, or asks to
+extract patterns from an external source.
+
+**RE task markers:**
+- `re_source: <path-or-url>` — identifies the external source
+- `re_mode: compatible | incompatible` — set by Archon after triage
+
+**Operational sequence:**
+1. Orchestrator provides external source context to Archon.
+2. Archon performs RE Triage (Archon.md, step 3):
+   maps external modules to project ontology, classifies compatibility.
+3. Ontos audits the RE plan under Horizontal Coherence:
+   verifies compatibility assessment, coupling validation.
+4. Pragma executes RE tasks (Pragma.md, Phase 0.5):
+   incompatible → isolation + agnostic extraction + blueprint.md;
+   compatible → cherry-pick + coupling validation + selective merge.
+5. Dokimos verifies RE output with ontological dependency tests.
+
+**Additional RE artifacts:**
+
+| From | To | Artifact | Format |
+|------|----|----------|--------|
+| Pragma | Dokimos | blueprint.md | SDD spec (incompatible path only) |
+| Pragma | Dokimos | Coupling index | dep/interdep/co-dep per extracted component |
+
+```
+RE Activation Decision Flow
+
+User request received
+  |
+  +-- References external source/tech? --no--> Normal flow
+  |
+  yes
+  |
+  v
+Orchestrator loads external context
+  |
+  v
+Archon: RE TRIAGE (step 3)
+  |
+  +-- Ontological compatibility?
+  |     |
+  |     +-- INCOMPATIBLE (co-dep, axiom violation, no bridge)
+  |     |     |
+  |     |     v
+  |     |   Plan: isolation dir (_re/<name>/)
+  |     |   + agnostic extraction (AST/flow analysis)
+  |     |   + blueprint.md (SDD: Specify->Plan->Tasks->Validate)
+  |     |
+  |     +-- COMPATIBLE (same/bridgeable stack, no co-dep)
+  |           |
+  |           v
+  |         Plan: cherry-pick extraction
+  |         + ontological coupling validation
+  |         + interface adaptation + selective merge
+  |
+  v
+Ontos: audit RE plan (horizontal coherence)
+  |
+  v
+Pragma: execute RE tasks (Phase 0.5)
+  |
+  v
+Dokimos: verify with ontological dependency tests
+```
+
 ---
 
 ## Agent Pipeline (5-Stage)

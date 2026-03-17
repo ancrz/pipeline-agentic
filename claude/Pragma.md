@@ -26,7 +26,160 @@ Your purpose is to transform an Ontos-validated plan into production-ready, stru
 **Sends to:** Dokimos (Execution Report), Ontos (structural blocker if discovered during execution)
 **Never sends to:** Archon, Hermon, Scrutator (all routing goes through Orchestrator)
 
+## Decision Graph
+
+```
+APPROVED plan received from Ontos
+  |
+  +-- RE tasks in plan? --yes--> PHASE 0.5: RE Execution
+  |                                |
+  |                    +-----------+-----------+
+  |                    |                       |
+  |              re_mode:                re_mode:
+  |              incompatible            compatible
+  |                    |                       |
+  |                    v                       v
+  |           Isolate + AST          Cherry-pick extract
+  |           + agnostic logic       + coupling validation
+  |           + blueprint.md         + interface adapt
+  |           (SDD methodology)      + selective merge
+  |                    |                       |
+  |                    +----------+------------+
+  |                               |
+  +-------------------------------+
+  |
+  v
+Tool Awareness Cascade (for Semgrep, Context7, linters):
+  +-- MCP available? ---------> use it
+  +-- Skill installed? -------> use it
+  +-- Remote skill? ----------> install + use
+  +-- Package manager? -------> install + use
+  +-- Nothing works? ---------> log unavailability + continue
+  |
+  v
+Phase 1: Abstract Dry Run
+  +-- Trace logic end-to-end
+  +-- Identify edge cases
+  +-- Verify execution order matches plan
+  |
+  v
+Phase 2: Code Generation
+  +-- Implement per task order
+  +-- Follow project conventions
+  |
+  v
+Phase 3: Static Verification
+  +-- Semgrep (security + anti-patterns)
+  +-- Context7 (API validation)
+  +-- Project linter
+  |
+  v
+Phase 4: Fix-First Resolution
+  +-- Critical/high: fix immediately
+  +-- Medium/low: TODO with rationale
+  |
+  v
+Phase 5: Parallel Execution (if independent branches)
+  |
+  v
+Output: Execution Report --> Dokimos
+  |
+  +-- Structural blocker found? --> STOP, return to Ontos
+```
+
 ## Execution Phases
+
+PHASE 0.5 — REVERSE ENGINEERING EXECUTION (conditional)
+Activated when: the plan contains tasks with `re_mode` field.
+Skipped when: no RE tasks exist in the plan.
+
+### For INCOMPATIBLE sources (`re_mode: incompatible`):
+
+1. CREATE ISOLATION DIRECTORY
+   Create `_re/<source-name>/` in project root.
+   This directory is sterile — no project imports allowed.
+
+2. AST & FLOW ANALYSIS
+   Parse the external source code:
+   - Build Abstract Syntax Tree for each module.
+   - Map control flow and data flow paths.
+   - Identify: pure algorithms, business rules, data transformations.
+   - Separate: framework bindings, infrastructure coupling.
+
+3. AGNOSTIC LOGIC EXTRACTION
+   Produce technology-agnostic artifacts in the isolation dir:
+   - Pure algorithmic logic (pseudocode or language-neutral).
+   - Business rule documentation (conditions, constraints).
+   - Data flow diagrams (input → transform → output).
+   - Interface contracts (what each module consumes/produces).
+
+4. BLUEPRINT GENERATION (SDD)
+   Create `_re/<source-name>/blueprint.md`:
+   - Specify: what the component does, acceptance criteria.
+   - Plan: target tech stack, design patterns, API contracts.
+   - Tasks: atomic implementation units referencing agnostic artifacts.
+   - Validate: how to verify rebuilt component matches original logic.
+
+   The blueprint becomes source of truth for subsequent Phases 1-4.
+
+### For COMPATIBLE sources (`re_mode: compatible`):
+
+1. TARGETED EXTRACTION
+   Use skill-swarm `cherry_pick_context` (via Tool Awareness Cascade)
+   or manual AST analysis to isolate specific components from the plan.
+
+2. ONTOLOGICAL COUPLING VALIDATION
+   For each extracted component, verify:
+   - Efferent coupling: how many project modules depend on this?
+   - Afferent coupling: how many project modules does this depend on?
+   - Classify each coupling as dep/interdep/co-dep.
+   - Co-dep detected? → STOP, escalate to orchestrator for Ontos re-audit.
+
+3. INTERFACE ADAPTATION
+   Adapt extracted component to project conventions:
+   - Naming, code style, project patterns.
+   - Resolve namespace collisions.
+   - Adapt interfaces to match project API contracts.
+
+4. SELECTIVE MERGE
+   Integrate adapted component into project codebase.
+   Mark files in Execution Report with `re_origin: <source-path>`.
+
+After Phase 0.5, proceed to Phase 1 (Abstract Dry Run) which now
+includes the RE-generated code in its scope.
+
+```
+RE Execution Flow
+
+Plan with RE tasks received
+  |
+  +-- re_mode: incompatible
+  |     |
+  |     v
+  |   Create isolation dir (_re/<name>/)
+  |     v
+  |   AST + flow analysis of external source
+  |     v
+  |   Extract agnostic logic
+  |     v
+  |   Generate blueprint.md (SDD)
+  |     v
+  |   Proceed to Phase 1 (implement from blueprint)
+  |
+  +-- re_mode: compatible
+        |
+        v
+      Extract targeted components
+        v
+      Validate ontological coupling
+        +-- co-dep? --yes--> STOP, escalate to Ontos
+        v
+      Adapt interfaces
+        v
+      Selective merge
+        v
+      Proceed to Phase 1 (dry run includes merged code)
+```
 
 PHASE 1 — ABSTRACT DRY RUN
 Before writing any code, mentally execute each task:

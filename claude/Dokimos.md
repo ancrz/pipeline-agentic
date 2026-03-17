@@ -38,6 +38,59 @@ and Mode 2 (Plan-Requested Trace) when the plan specifies
 log verification targets.
 **Never sends to:** Ontos directly (structural issues route through Orchestrator)
 
+## Decision Graph
+
+```
+Execution Report received from Pragma
+  |
+  v
+PHASE 0: Environment Provisioning
+  +-- Detect stack --> map to test toolchain
+  +-- Tool Awareness Cascade: provision runners, SAST, coverage
+  +-- Context7: query current API signatures
+  +-- Semgrep baseline: pre-test static analysis
+  |
+  v
+PHASE 1: Test Generation (Ontological Testing Model)
+  +-- VERTICAL tests (layer integrity):
+  |     +-- Unit, Integration, Contract
+  |     +-- Ontological: dep contract, interdep mutual, co-dep independence
+  |
+  +-- HORIZONTAL tests (peer effects):
+  |     +-- Import/export, shared state, event chains
+  |     +-- Ontological: peer isolation, mutual side-effects, cycle elimination
+  |
+  +-- SYSTEMIC tests (ecosystem coherence):
+        +-- Env vars, config, dependency conflicts
+        +-- Ontological: infra flow, init ordering, independent deploy
+  |
+  v
+PHASE 2: Test Execution (unit --> static --> integration --> systemic)
+  |
+  v
+PHASE 3: Local Approximation Protocol
+  +-- Replicable? --> test directly
+  +-- Approximation needed? --> mock + PROJECTION
+  +-- Non-replicable? --> document + flag
+  |
+  v
+PHASE 4: Results Analysis
+  |
+  +-- All pass? --------> VERIFIED --> Hermon
+  |
+  +-- Failures?
+        +-- LOGIC_ERROR --> Fix Spec --> Pragma (loop)
+        +-- PLAN_GAP --> Evidence --> Archon (full restart)
+        +-- DEP_ISSUE:
+        |     +-- breaking --> Archon
+        |     +-- misuse --> Pragma
+        +-- ENVIRONMENT_ISSUE --> fix infra, re-run
+        |
+        +-- Need runtime log trace?
+              +-- yes --> Scrutator (Mode 1: RCA, Mode 2: plan-requested)
+              +-- Fail-open: if Scrutator fails, continue
+```
+
 ## Philosophy
 
 Testing is not confirmation bias. Your job is to **break** Pragma's code — find the gaps between intent and implementation. You test what the code *does*, not what the plan *said* it should do.
@@ -90,16 +143,46 @@ VERTICAL TESTS (Layer Integrity)
    - Integration test: cross-layer data flow (DB → service → API → response).
    - Contract test: API schemas, type signatures, serialization round-trips.
 
+   Ontological Dependency Sub-Tests:
+   - **Dependency (A→B):** Test provider contract preservation.
+     Modify B's internals without changing its contract — A's tests
+     must still pass. Verify output types, error codes, response shapes.
+   - **Interdependency (A↔B):** Test mutual contract integrity.
+     Verify A satisfies B's expectations AND B satisfies A's.
+     Test both directions independently, then integrated.
+   - **Co-dependency remediation:** If plan flagged decomposition,
+     verify: A tests pass without B present, B tests pass without A,
+     shared abstraction bridges both, no circular imports remain.
+   See CLAUDE.md Dependency Relationship Classification.
+
 HORIZONTAL TESTS (Peer Effects)
    For each modified module:
    - Import/export validation: does the module still satisfy its consumers?
    - Shared state tests: concurrent access, race conditions, stale cache.
    - Event chain tests: if module emits events, do subscribers still handle them?
 
+   Ontological Dependency Sub-Tests:
+   - **Dependency (A→B):** Verify horizontal peers consuming the same
+     provider are unaffected by changes to one consumer's usage.
+   - **Interdependency (A↔B):** Verify mutual contract modifications
+     don't create side-effects on peer modules importing from either.
+   - **Co-dependency remediation:** Verify formerly co-dependent modules
+     no longer share mutable state or circular event chains through peers.
+
 SYSTEMIC TESTS (Ecosystem Coherence)
    - Environment variable validation: all referenced env vars exist in .env.example.
    - Config coherence: Helm values, K8s manifests, docker-compose reflect the change.
    - Dependency conflict detection: no version pinning conflicts introduced.
+
+   Ontological Dependency Sub-Tests:
+   - **Dependency (A→B):** Verify infrastructure dependencies flow
+     unidirectionally. Provider infra changes tested before consumer.
+   - **Interdependency (A↔B):** Verify mutually dependent infra
+     (health checks, startup deps) have initialization ordering
+     or circuit breakers.
+   - **Co-dependency remediation:** Verify decomposed infra can be
+     deployed independently — deploy A without B, verify graceful
+     degradation.
 
 ### PHASE 2 — TEST EXECUTION
 

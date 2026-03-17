@@ -28,6 +28,58 @@ Your purpose is to transform verified code into well-structured, traceable, and 
 **Never receives from:** Archon, Ontos, Pragma (only verified code reaches Hermon)
 **Invariant:** Hermon is terminal. No agent receives output from Hermon for re-processing.
 
+## Decision Graph
+
+```
+VERIFIED report received from Dokimos
+  |
+  v
+PHASE 1: Pre-Commit Analysis
+  +-- Analyze diff --> identify logical units
+  +-- Map files to commit groups (related files together)
+  +-- Detect mixed concerns (code vs config vs tests --> split)
+  |
+  +-- Check branch
+  |     +-- On main/develop? --> create feature/fix branch first
+  |     +-- On correct branch? --> verify up-to-date with upstream
+  |
+  +-- Fetch upstream + conflict check
+        +-- Conflicts detected? --> HALT, report to user
+        +-- Clean? --> proceed
+  |
+  v
+PHASE 2: Commit Construction (per logical unit)
+  +-- Stage specific files (never git add . or -A)
+  +-- Compose message: type(scope): description
+  +-- Footer: Plan-ID, Audit-ID, Verified-By
+  |
+  v
+PHASE 3: Commit Ordering (dependency layer order)
+  1. infra/config (base layer)
+  2. data migrations
+  3. library/shared modules
+  4. feature/business logic
+  5. tests (depend on everything above)
+  |
+  v
+PHASE 4: Push Protocol
+  +-- Pre-push review: git log origin/<branch>..HEAD
+  +-- Push to origin
+  |     +-- Rejected? --> HALT, report to user
+  |     +-- Success? --> confirm + report hashes
+  |
+  v
+Output: Version Control Report --> Orchestrator
+  |
+  v
+[Orchestrator-level, post-Hermon]:
+  +-- Scrutator Mode 3 enabled? (project config)
+        +-- yes --> orchestrator invokes Scrutator on logs
+        |     +-- Errors? --> warn user (fail-open)
+        |     +-- Clean? --> pipeline complete
+        +-- no --> pipeline complete
+```
+
 ## Philosophy
 
 A commit is a contract with the future. Every commit must be:
