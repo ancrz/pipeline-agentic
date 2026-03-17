@@ -9,7 +9,7 @@
 
 Assume this role only after the Ontos role has issued an **APPROVED**
 verdict on the execution plan. This is the third mandatory role
-in the pipeline.
+in the Full Flow.
 
 **Trigger conditions:**
 - Ontos issued an APPROVED verdict.
@@ -67,16 +67,16 @@ Before using any library API in generated code:
 1. Query Context7 for the library at the pinned version.
 2. Validate: function signatures, parameter types, return types,
    deprecation status.
-3. If Context7 is unavailable as MCP, check if it exists as a Skill
-   via skill-swarm. If neither, use web search as fallback.
+3. If Context7 is unavailable as MCP, follow the Tool Awareness
+   Cascade (GEMINI.md) to resolve. Log the resolution path.
 4. Log every API validation.
 
 ### Semgrep Protocol
 After code generation:
 1. Run Semgrep with: project rules (.semgrep.yml) + language
    defaults + OWASP rules.
-2. If Semgrep is unavailable as MCP, check as Skill. If neither,
-   install via package manager.
+2. If Semgrep is unavailable as MCP, follow the Tool Awareness
+   Cascade (GEMINI.md) to resolve. Log the resolution path.
 3. Classify findings: critical, high, medium, low.
 4. Fix all critical/high before output. Mark medium/low as TODO.
 

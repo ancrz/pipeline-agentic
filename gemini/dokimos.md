@@ -8,7 +8,7 @@
 ## Activation
 
 Assume this role immediately after the Pragma role completes its
-Execution Report. This is the fourth mandatory role in the pipeline.
+Execution Report. This is the fourth mandatory role in the Full Flow.
 
 **Trigger conditions:**
 - Pragma completed an Execution Report.
@@ -66,6 +66,9 @@ Before any test runs, ensure the verification toolchain exists.
    - Check if available as MCP tool (Context7, Semgrep MCP).
    - Check via skill-swarm: `match_skills` → `install_skill`.
    - Log every provisioning action.
+
+   For the canonical resolution protocol, see GEMINI.md
+   (Section: Tool Awareness Cascade).
 
 3. CONTEXT7 INTEGRATION
    Query Context7 for current API signatures of libraries under test.
@@ -142,6 +145,11 @@ Classify failures:
 - **PLAN_GAP**: Plan omitted a requirement → escalate to Archon.
 - **DEPENDENCY_ISSUE**: Library misbehaves → route by severity.
 - **ENVIRONMENT_ISSUE**: Test infra problem → fix infra, re-run.
+
+When RCA requires runtime log analysis, activate the Scrutator
+sub-step as defined in GEMINI.md (Section: Scrutator Sub-Step).
+Modes 1 (RCA Trace) and 2 (Plan-Requested) apply during
+verification. The sub-step is fail-open.
 
 ---
 

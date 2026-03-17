@@ -9,7 +9,7 @@
 
 Assume this role immediately after the Archon role produces a
 completed execution plan and before any code is written.
-This is the second mandatory role in the pipeline.
+This is the second mandatory role in the Full Flow.
 
 **Trigger conditions:**
 - Archon completed an execution plan.
@@ -97,6 +97,14 @@ Produce an Audit Report with:
 - Never write code. You audit only.
 - If the plan lacks sufficient detail to audit, request expansion
   from the Archon role.
+
+---
+
+## Tool Awareness Compliance
+
+When auditing a plan, verify that tool assumptions follow the
+Tool Awareness Cascade defined in GEMINI.md. Flag plans that
+assume a tool is available without specifying a cascade fallback.
 
 ---
 

@@ -140,6 +140,27 @@ missing rollback logic, undocumented assumptions.
 If resolving X2 would reintroduce X1, the fix is structurally
 invalid. Escalate to Archon role for replanning.
 
+**Dependency Relationship Classification**
+
+Every relationship between modules falls into one of three categories:
+
+- **Dependency** (A → B): A consumes B. B has no knowledge of A.
+  Valid. Standard directional coupling.
+- **Interdependency** (A ↔ B): A and B have a mutual contract.
+  Valid with explicit interface documentation. Both sides must be
+  in the plan if either is modified.
+- **Co-dependency** (A and B cannot function independently):
+  INVALID. Always requires decomposition into dependency or
+  interdependency via extraction of shared logic into a third
+  module, interface segregation, or architectural restructuring.
+  A plan containing co-dependent modules is BLOCKED until the
+  co-dependency is resolved. There is no conditional approval
+  for co-dependency.
+
+The Ontos role classifies every cross-module relationship in the plan
+using this ontology. Vertical trace and horizontal trace both apply
+this classification.
+
 > If a change risks breaking the graph, flag it before writing code.
 
 ---
@@ -147,7 +168,7 @@ invalid. Escalate to Archon role for replanning.
 ## Role Pipeline (5-Stage)
 
 Five roles exist in the pipeline. Assume them in order.
-No stage may be skipped.
+No stage may be skipped in the Full Flow. Reduced flows (see Pipeline Flow Variants) define their own role sets.
 
 ### Stage 1: Archon Role → Plan
 
@@ -208,6 +229,31 @@ Verdicts:
   - Breaking change → Archon role.
   - API misuse → Pragma role.
 
+**Scrutator Sub-Step** — Scrutator is an ephemeral log-tracing
+behavior activated within the Dokimos role. In the single-model
+paradigm, you temporarily shift focus to log parsing and error
+categorization without leaving the Dokimos context. This is
+the canonical definition; role files reference these modes.
+
+**Mode 1: RCA Trace (default)**
+- Trigger: Test failure requiring runtime log analysis.
+- Protocol: (1) Truncate logs. (2) Re-execute failing test.
+  (3) Read/parse log output. (4) Resume Dokimos reasoning.
+- Fail semantics: FAIL-OPEN. Continue without log trace.
+
+**Mode 2: Plan-Requested Trace**
+- Trigger: Archon's plan requests log analysis for a scenario.
+- Protocol: Same as Mode 1, targeting plan-specified patterns.
+- Fail semantics: FAIL-CLOSED for documentation (APPROXIMATION).
+
+**Mode 3: Post-Commit Gate**
+- Trigger: After Hermon commits, optionally check error logs.
+- Protocol: Read post-commit/CI trigger logs. Return status.
+- Fail semantics: FAIL-OPEN. Does not revert commit.
+
+Log sources: Docker (`docker compose logs --tail=200 <service>`),
+application (`data/logs/*.log`), stdout/stderr.
+
 ### Stage 5: Hermon Role → Commit & Push
 
 Assume the **Hermon role** only after Dokimos issues VERIFIED.
@@ -243,24 +289,163 @@ Request → [Archon] → [Ontos] → [Pragma] → [Dokimos] → [Hermon] → Don
 
 ---
 
-## Skill Provisioning
+## Role Transition Map
 
-This pipeline uses **skill-swarm-mcp** for skill discovery and
-installation across both Gemini CLI and Antigravity.
+In the single-model paradigm, transitions are context shifts — the
+same model changes its behavioral frame based on verdicts and outputs.
+
+| From Role | Trigger | To Role | Context Carried |
+|-----------|---------|---------|-----------------|
+| (start) | new task | Archon | User request + project context |
+| Archon | plan ready | Ontos | Execution Plan |
+| Ontos | APPROVED | Pragma | Audit Report + Plan |
+| Ontos | BLOCKED | Archon | Remediation items |
+| Pragma | execution done | Dokimos | Execution Report |
+| Pragma | structural blocker | Ontos | Blocker description |
+| Dokimos | VERIFIED | Hermon | Verification Report |
+| Dokimos | LOGIC_ERROR | Pragma | Fix Specification |
+| Dokimos | PLAN_GAP | Archon | Gap evidence (full restart) |
+| Dokimos | DEP_ISSUE (breaking) | Archon | Dependency analysis |
+| Dokimos | DEP_ISSUE (misuse) | Pragma | Corrected usage |
+| Hermon | done | (end) | Version Control Report |
+| Hermon | conflict | (user) | Conflict details |
+
+### RE Artifact Contracts
+
+When a task involves external source analysis:
+
+| From Role | To Role | Artifact | Format |
+|-----------|---------|----------|--------|
+| (context) | Archon | Codebase snapshot | File tree + key contents |
+| Archon | Ontos | RE findings | Tasks with `re_source: <file>` |
+| Ontos | Pragma | Audit of RE accuracy | Horizontal coherence check |
+| Dokimos | Archon | Regression evidence | Pre-change behavior in PLAN_GAP |
+
+---
+
+### RE Operational Flow
+
+When a task involves external source integration, technology migration,
+or legacy codebase analysis, the pipeline activates RE mode.
+This is NOT a separate role — it augments existing roles.
+
+**Activation:** User provides an external codebase, references a
+technology to evaluate, or requests migration analysis.
+
+**RE task markers:**
+- `re_source: <path-or-url>` — identifies the external source
+- `re_mode: compatible | incompatible` — set by Archon after triage
+
+**Sequence:**
+1. Load external source context before assuming Archon role.
+2. Archon performs RE Triage (archon.md, step 3):
+   maps external modules to project ontology, classifies compatibility.
+3. Ontos audits RE plan under Horizontal Coherence.
+4. Pragma executes RE tasks (pragma.md, Phase 0.5).
+5. Dokimos verifies with ontological dependency tests.
+
+```
+RE Activation Decision Flow
+
+User request received
+  |
+  +-- References external source/tech? --no--> Normal flow
+  |
+  yes → Load external context
+  |
+  v
+Archon role: RE TRIAGE
+  |
+  +-- Ontological compatibility?
+  |     |
+  |     +-- INCOMPATIBLE (co-dep, axiom violation)
+  |     |     Plan: isolation dir + agnostic extraction + blueprint.md
+  |     |
+  |     +-- COMPATIBLE (same/bridgeable stack, no co-dep)
+  |           Plan: cherry-pick + coupling validation + merge
+  |
+  v
+Ontos role: audit RE plan
+  v
+Pragma role: Phase 0.5 execution
+  v
+Dokimos role: ontological tests
+```
+
+---
+
+## Pipeline Flow Variants
+
+The Full Flow applies to all code-modifying tasks. These variants
+define reduced flows for specific task categories.
+
+### Full Flow (default)
+- **Trigger:** Any task creating, modifying, or deleting code,
+  config, infrastructure, or dependency files.
+- **Roles:** Archon → Ontos → Pragma → Dokimos → Hermon
+- **Exit:** Hermon produces Version Control Report.
+
+### Audit Flow
+- **Trigger:** User requests "audit this", "review architecture".
+- **Roles:** Ontos only.
+- **Exit:** Audit Report (APPROVED or BLOCKED).
+
+### Documentation Flow
+- **Trigger:** Markdown/README-only changes. No code.
+- **Roles:** Archon → Ontos → Pragma → Hermon (skip Dokimos).
+- **Exit:** Hermon commits with type "docs".
+
+### Verification Flow
+- **Trigger:** User requests "test this", "validate" existing code.
+- **Roles:** Dokimos only (with optional Scrutator sub-step).
+- **Exit:** Verification Report.
+
+### Planning Flow
+- **Trigger:** User requests "plan this", "how would we build X".
+- **Roles:** Archon → Ontos. No execution.
+- **Exit:** Validated plan presented to user.
+
+---
+
+## Tool Awareness Cascade
+
+Canonical definition of the tool resolution protocol.
+All roles reference this section — they do not redefine it.
+
+When any role needs a tool (Semgrep, Context7, linter, test runner,
+skill, or MCP server), it resolves availability in this order:
+
+1. **MCP tool**: Check if available as an MCP server in the
+   current session. MCP tools are shared across all roles.
+2. **Installed skill**: Use skill-swarm `match_skills` to search
+   for a locally installed skill providing the capability.
+3. **Remote skill**: Search skill-swarm remote registry with
+   `search_skills`. Install if trust score >= 0.5 and matches.
+4. **Package manager**: Install via project's package manager
+   (npm, pip, cargo, go install, etc.).
+5. **Terminal fallback**: If steps 1-4 all fail, log the
+   unavailability, document what was attempted, and continue
+   without the tool. Note in output what verification was skipped.
+
+Cascade is fail-soft: each step is attempted; failure proceeds
+to the next. Only if ALL steps fail does the terminal fallback apply.
+
+**skill-swarm availability policy:**
+- Pinned to version in settings.json / mcp_config.json.
+- Health check: `list_skills`. If error or timeout (10s),
+  skip steps 2-3, proceed to step 4.
 
 Repository: https://github.com/ancrz/skill-swarm-mcp
 
-### Provisioning Protocol
-
-When any role needs a skill, tool, or MCP server:
-
-1. **Check local**: Use `match_skills` to search installed skills.
-2. **Search remote**: Use `search_skills` if no local match.
-3. **Install**: Use `install_skill` with trust score verification.
-4. **Verify**: Confirm skill is available in `~/.gemini/skills/`.
-
-Skill provisioning happens in the Archon role (Phase 2).
-Other roles may request provisioning by signaling Archon.
+**Role-specific behavior:**
+- **Archon** (planning): Evaluates tool availability during Skill
+  Provisioning. Logs which tools are available via which cascade step.
+- **Pragma** (execution): Executes cascade at runtime during
+  Static Verification. Installs tools as needed.
+- **Dokimos** (verification): Executes cascade during Environment
+  Provisioning. Provisions test-specific tools.
+- **Ontos** (audit): Verifies plan accounts for tool availability.
+  Flags if plan assumes a tool without cascade verification.
 
 ### Skill Directory
 
@@ -401,10 +586,30 @@ but the role pipeline is reserved for execution work.
 | Dokimos DEFECTIVE after 3 fix cycles | Escalate to user with RCA |
 | Dokimos discovers plan gap | Full restart from Archon role |
 | Hermon detects merge conflicts | Report to user, await instructions |
+| Scrutator sub-step fails or times out | Dokimos continues without log trace (fail-open) |
 
 Maximum loop iterations before user escalation:
 - Archon ↔ Ontos: 3 cycles
 - Pragma ↔ Dokimos: 3 cycles
+
+---
+
+## Post-Execution Abstract Study
+
+After a complete pipeline run, you MAY perform a retrospective.
+This is NOT a pipeline role — it is an orchestrator-level
+self-reflection that does not modify files.
+
+**Trigger:** After any run with at least one Archon↔Ontos
+revision cycle OR one Pragma↔Dokimos fix cycle. Also on user request.
+
+**Inputs:** All role outputs plus pipeline metrics.
+
+**Outputs:** Structured retrospective: root causes of cycles,
+pattern identification, efficiency assessment, recommendations.
+
+**Feedback:** Present to user. If confirmed as standing rule,
+record in project-level `.gemini/GEMINI.md` for future runs.
 
 ---
 

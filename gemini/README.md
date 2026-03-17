@@ -42,6 +42,8 @@ flowchart TD
         D["`**Dokimos**
         Test orchestration`"]
         TT["test runner · coverage"]
+        SC["`**Scrutator**
+        Log trace _(optional)_`"]
     end
 
     subgraph COMMIT ["Role 5 — Commit"]
@@ -58,9 +60,13 @@ flowchart TD
     P --> D
     P -->|structural blocker| O
     D --> TT
+    D -.->|log trace needed| SC
+    SC -.->|findings| D
     D -->|VERIFIED| H
     D -->|LOGIC_ERROR| P
     D -->|PLAN_GAP| A
+    D -->|DEPENDENCY_ISSUE·breaking| A
+    D -->|DEPENDENCY_ISSUE·misuse| P
     H --> CC
     H --> DONE([Done])
 
@@ -71,6 +77,7 @@ flowchart TD
     style H fill:#E1F5EE,stroke:#0F6E56,color:#04342C
     style S7 fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
     style TT fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
+    style SC fill:#FFF8E1,stroke:#F9A825,color:#4A3800
     style CC fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
     style R fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
     style DONE fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
@@ -128,14 +135,25 @@ your-project/.gemini/workflows/
 
 See GEMINI.md for the workflow file contents.
 
+## Pipeline Flow Variants
+
+| Flow | Trigger | Roles | Exit |
+|------|---------|-------|------|
+| **Full** (default) | Code/config/infra changes | Archon → Ontos → Pragma → Dokimos → Hermon | Version Control Report |
+| **Audit** | "audit this", "review architecture" | Ontos only | Audit Report |
+| **Documentation** | Markdown/README only | Archon → Ontos → Pragma → Hermon | docs commit |
+| **Verification** | "test this", "validate" | Dokimos only | Verification Report |
+| **Planning** | "plan this", "how would we build X" | Archon → Ontos | Validated plan |
+
 ## Roles
 
 | Role | Stage | Purpose |
 |------|-------|---------|
 | **Archon** | 1 — Plan | Produces the execution plan. Identifies stack, provisions skills via skill-swarm, builds a dependency-aware task list. Never writes code. |
-| **Ontos** | 2 — Audit | Validates the plan across four dimensions: vertical coherence, horizontal coherence, systemic coherence, and omission gap detection. |
+| **Ontos** | 2 — Audit | Validates the plan across five audit dimensions (including dependency classification): vertical coherence, horizontal coherence, systemic coherence, omission gap detection, and dependency relationship classification. |
 | **Pragma** | 3 — Execute | Transforms the validated plan into code. Runs dry run, generates code, verifies with Semgrep + Context7, applies fix-first resolution. |
-| **Dokimos** | 4 — Verify | Provisions test toolchain, generates ontological test suites, executes them, performs RCA on failures, and routes defects. |
+| **Dokimos** | 4 — Verify | Provisions test toolchain, generates ontological test suites with ontological dependency sub-tests (dep · interdep · co-dep), executes them, performs RCA on failures, and routes defects. |
+| **Scrutator** | 4.1 — Log Trace | Sub-step of Dokimos. Ephemeral log-tracing behavior within the Dokimos role. Reads logs, parses errors/warnings, returns structured findings. Fail-open. |
 | **Hermon** | 5 — Commit | Constructs atomic commits following Conventional Commits v1.0.0, manages branches, pushes. Uses native git (GitKraken MCP as optional enhancement). |
 
 ## Skill Provisioning
@@ -198,6 +216,12 @@ The pipeline operates under the **Topos Integrity Protocol**. Three tracing dime
 
 **Gap cascade prevention**: fixing gap X1 must not create gap X2. If resolving X2 reintroduces X1, the fix is structurally invalid — escalates to Archon for replanning.
 
+### Dependency Relationship Classification
+
+- **Dependency** (A → B): one-way, consumer depends on provider.
+- **Interdependency** (A ↔ B): mutual contract, both must be in scope.
+- **Co-dependency** (A+B inseparable): INVALID. Always requires decomposition. Automatic BLOCKED.
+
 ## Feedback Loops
 
 Three feedback loops, each with a max of **3 cycles** before user escalation:
@@ -205,6 +229,21 @@ Three feedback loops, each with a max of **3 cycles** before user escalation:
 - **Archon ↔ Ontos** — plan revision when Ontos returns BLOCKED.
 - **Pragma ↔ Dokimos** — code fix when Dokimos returns LOGIC_ERROR.
 - **Dokimos → Archon** — full restart when Dokimos returns PLAN_GAP.
+
+## Scrutator: Log Trace Sub-Step
+
+Scrutator is an ephemeral log-tracing behavior within the Dokimos role (not a separate role file). Three operational modes defined canonically in GEMINI.md:
+
+- **Mode 1 (RCA Trace):** Dokimos-initiated, fail-open. Default for test failure analysis.
+- **Mode 2 (Plan-Requested):** Archon-specified, fail-closed for documentation.
+- **Mode 3 (Post-Commit Gate):** Post-Hermon, fail-open. OFF by default.
+
+## Reverse Engineering Protocol
+
+When tasks involve external source integration, the pipeline activates RE mode. See GEMINI.md for the canonical definition including:
+- RE task markers (`re_source`, `re_mode`)
+- Compatibility triage (INCOMPATIBLE: isolation + blueprint.md via SDD / COMPATIBLE: cherry-pick + coupling validation)
+- RE Artifact Contracts between roles
 
 ## Git Interface
 
@@ -258,6 +297,10 @@ The same Topos Protocol runs on both Claude Code (multi-agent) and Gemini (role-
 | **Invocation** | External tool calls | Inline role assumption | `/workflow` triggers |
 | **Skill provisioning** | skill-swarm MCP | skill-swarm MCP | skill-swarm MCP |
 | **Git interface** | GitKraken MCP → git | GitKraken MCP → git | git |
+| **Flow Variants** | 5 variants (CLAUDE.md) | 5 variants (GEMINI.md) | 5 variants (GEMINI.md) |
+| **Ontology** | 3-tier dep classification | 3-tier dep classification | 3-tier dep classification |
+| **Scrutator** | Ephemeral agent (3 modes) | Ephemeral sub-step (3 modes) | Ephemeral sub-step (3 modes) |
+| **RE Protocol** | RE Operational Flow | RE Operational Flow | RE Operational Flow |
 
 ## License
 

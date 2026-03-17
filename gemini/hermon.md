@@ -9,7 +9,7 @@
 
 Assume this role only after the Dokimos role has issued a
 **VERIFIED** verdict. This is the fifth and final mandatory
-role in the pipeline.
+role in the Full Flow.
 
 **Trigger conditions:**
 - Dokimos issued a VERIFIED verdict.

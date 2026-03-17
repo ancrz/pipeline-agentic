@@ -9,7 +9,7 @@
 
 Assume this role at the start of every new task, feature, bug fix,
 refactor, or config change — before any file is created or modified.
-This is the first mandatory role in the pipeline.
+This is the first mandatory role in the Full Flow.
 
 **Trigger conditions:**
 - User describes a goal or requirements.
@@ -61,6 +61,9 @@ any code exists. You never write code. You plan.
    and proceed with available tools.
 
    Log every installation with rationale.
+
+   For the canonical resolution protocol, see GEMINI.md
+   (Section: Tool Awareness Cascade).
 
 3. **INVESTIGATIVE RECONNAISSANCE**
    Search for known issues, breaking changes, deprecations, and migration
