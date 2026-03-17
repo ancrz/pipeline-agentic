@@ -120,14 +120,26 @@ Routing table:
 ```mermaid
 flowchart TD
     R([User Request]) --> CI[Context Ingestion]
-    CI --> SP[Skill Provisioning<br/>Tool Awareness Cascade]
+    CI --> RE{External source?}
+    RE -->|yes| RET2[RE Triage:<br/>Map topology +<br/>Ontological assessment]
+    RET2 --> CV{Compatible?}
+    CV -->|INCOMPATIBLE| INC[Plan: isolation dir<br/>+ agnostic extraction<br/>+ blueprint.md via SDD]
+    CV -->|COMPATIBLE| COM[Plan: cherry-pick<br/>+ coupling validation<br/>+ selective merge]
+    INC --> SP
+    COM --> SP
+    RE -->|no| SP[Skill Provisioning<br/>Tool Awareness Cascade]
     SP --> IR[Investigative Recon]
-    IR --> PC[Plan Construction<br/>Dependency Classification]
+    IR --> PC[Plan Construction<br/>Dependency Classification<br/>dep · interdep · co-dep]
     PC --> RET[Return to Orchestrator]
     PG([PLAN_GAP from Dokimos]) --> CI
 
     style R fill:#F1EFE8,stroke:#5F5E5A
     style CI fill:#FAECE7,stroke:#993C1D
+    style RE fill:#FFF8E1,stroke:#F9A825
+    style RET2 fill:#FAECE7,stroke:#993C1D
+    style CV fill:#FFF8E1,stroke:#F9A825
+    style INC fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style COM fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
     style SP fill:#FAECE7,stroke:#993C1D
     style IR fill:#FAECE7,stroke:#993C1D
     style PC fill:#FAECE7,stroke:#993C1D
@@ -143,8 +155,12 @@ flowchart TD
     VC --> HC[Horizontal Coherence]
     HC --> SC[Systemic Coherence]
     SC --> OGD[Omission Gap Detection]
-    OGD --> DRA[Dependency Relationship<br/>Classification Audit]
-    DRA --> GCC[Gap Cascade Check]
+    OGD --> DRA[Dependency Relationship<br/>Classification Audit<br/>dep · interdep · co-dep]
+    DRA --> TAC[Tool Awareness Compliance]
+    TAC --> REA{RE tasks?}
+    REA -->|yes| REP[RE Plan Audit:<br/>compatibility justified?<br/>isolation/coupling adequate?]
+    REP --> GCC[Gap Cascade Check]
+    REA -->|no| GCC
     GCC --> V{Verdict}
     V -->|APPROVED| APR([To Pragma])
     V -->|BLOCKED| BLK([Back to Archon])
@@ -155,6 +171,9 @@ flowchart TD
     style SC fill:#FAECE7,stroke:#993C1D
     style OGD fill:#FAECE7,stroke:#993C1D
     style DRA fill:#FAECE7,stroke:#993C1D
+    style TAC fill:#FAECE7,stroke:#993C1D
+    style REA fill:#FFF8E1,stroke:#F9A825
+    style REP fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
     style GCC fill:#FAECE7,stroke:#993C1D
     style V fill:#FFF8E1,stroke:#F9A825
     style APR fill:#EAF3DE,stroke:#3B6D11
@@ -165,7 +184,16 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A([APPROVED Plan]) --> DR[Phase 1: Abstract Dry Run]
+    A([APPROVED Plan]) --> REC{RE tasks?}
+    REC -->|yes| RE05[Phase 0.5: RE Execution]
+    RE05 --> REM{re_mode?}
+    REM -->|incompatible| ISO[Isolation dir<br/>+ AST analysis<br/>+ agnostic extraction<br/>+ blueprint.md SDD]
+    REM -->|compatible| CHP[Cherry-pick extract<br/>+ coupling validation<br/>+ interface adapt<br/>+ selective merge]
+    ISO --> DR
+    CHP --> CODEP{co-dep?}
+    CODEP -->|yes| STOP([STOP → Ontos re-audit])
+    CODEP -->|no| DR
+    REC -->|no| DR[Phase 1: Abstract Dry Run]
     DR --> CG[Phase 2: Code Generation]
     CG --> SV[Phase 3: Static Verification<br/>Semgrep + Context7<br/>via Tool Awareness Cascade]
     SV --> FF[Phase 4: Fix-First Resolution]
@@ -175,6 +203,13 @@ flowchart TD
     BLK([Structural Blocker]) --> ONT([Back to Ontos])
 
     style A fill:#F1EFE8,stroke:#5F5E5A
+    style REC fill:#FFF8E1,stroke:#F9A825
+    style RE05 fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style REM fill:#FFF8E1,stroke:#F9A825
+    style ISO fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style CHP fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    style CODEP fill:#FFE0E0,stroke:#CC3333
+    style STOP fill:#FFE0E0,stroke:#CC3333
     style DR fill:#E6F1FB,stroke:#185FA5
     style CG fill:#E6F1FB,stroke:#185FA5
     style SV fill:#E6F1FB,stroke:#185FA5
@@ -191,8 +226,13 @@ flowchart TD
 ```mermaid
 flowchart TD
     ER([Execution Report]) --> EP[Phase 0: Environment Provisioning<br/>Tool Awareness Cascade]
-    EP --> TG[Phase 1: Test Generation<br/>Vertical · Horizontal · Systemic]
-    TG --> TE[Phase 2: Test Execution]
+    EP --> TG[Phase 1: Test Generation]
+    TG --> VT[Vertical Tests<br/>+ ontological: dep · interdep · co-dep]
+    TG --> HT[Horizontal Tests<br/>+ ontological: peer · mutual · cycle]
+    TG --> ST[Systemic Tests<br/>+ ontological: infra · ordering · deploy]
+    VT --> TE[Phase 2: Test Execution]
+    HT --> TE
+    ST --> TE
     TE --> LAP[Phase 3: Local Approximation]
     LAP --> PASS{All Pass?}
     PASS -->|Yes| VER([VERIFIED → Hermon])
@@ -209,6 +249,9 @@ flowchart TD
     style ER fill:#F1EFE8,stroke:#5F5E5A
     style EP fill:#EAF3DE,stroke:#3B6D11
     style TG fill:#EAF3DE,stroke:#3B6D11
+    style VT fill:#EAF3DE,stroke:#3B6D11
+    style HT fill:#EAF3DE,stroke:#3B6D11
+    style ST fill:#EAF3DE,stroke:#3B6D11
     style TE fill:#EAF3DE,stroke:#3B6D11
     style LAP fill:#EAF3DE,stroke:#3B6D11
     style RCA fill:#EAF3DE,stroke:#3B6D11
@@ -244,6 +287,74 @@ flowchart TD
     style SCR fill:#FFF8E1,stroke:#F9A825
     style USR fill:#FFE0E0,stroke:#CC3333
     style DONE fill:#F1EFE8,stroke:#5F5E5A
+```
+
+### Reverse Engineering — Decision Flow
+
+```mermaid
+flowchart TD
+    USR([User provides external source]) --> ORC[Orchestrator loads context]
+    ORC --> ARC[Archon: RE Triage]
+    ARC --> MAP[Map external topology<br/>modules · deps · stack]
+    MAP --> ONT[Ontological compatibility<br/>assessment per module]
+    ONT --> CLS{Classification}
+    CLS -->|dep A→B| OK[Valid coupling]
+    CLS -->|interdep A↔B| OK2[Valid with contract]
+    CLS -->|co-dep| FAIL[Automatic INCOMPATIBLE]
+    OK --> AGG{Aggregate}
+    OK2 --> AGG
+    FAIL --> AGG
+    AGG -->|any co-dep or axiom violation| INC
+
+    subgraph INC ["INCOMPATIBLE Path"]
+        I1[Create isolation dir<br/>_re/source-name/]
+        I2[AST + flow analysis]
+        I3[Agnostic logic extraction]
+        I4[blueprint.md generation<br/>SDD: Specify→Plan→Tasks→Validate]
+        I1 --> I2 --> I3 --> I4
+    end
+
+    AGG -->|all valid| CMP
+
+    subgraph CMP ["COMPATIBLE Path"]
+        C1[Cherry-pick extraction<br/>skill-swarm cherry_pick_context]
+        C2[Ontological coupling validation<br/>efferent · afferent index]
+        C3{co-dep in extraction?}
+        C4[Interface adaptation<br/>conventions · namespaces · APIs]
+        C5[Selective merge into project]
+        C1 --> C2 --> C3
+        C3 -->|no| C4 --> C5
+        C3 -->|yes| STOP([STOP → Ontos re-audit])
+    end
+
+    INC --> ONTOS[Ontos: audit RE plan<br/>horizontal coherence]
+    CMP --> ONTOS
+    ONTOS --> PRA[Pragma: Phase 0.5 execution]
+    PRA --> DOK[Dokimos: ontological dep tests]
+    DOK --> HER([Hermon: commit])
+
+    style USR fill:#F1EFE8,stroke:#5F5E5A
+    style ORC fill:#F1EFE8,stroke:#5F5E5A
+    style ARC fill:#FAECE7,stroke:#993C1D,color:#4A1B0C
+    style MAP fill:#FAECE7,stroke:#993C1D,color:#4A1B0C
+    style ONT fill:#FAECE7,stroke:#993C1D,color:#4A1B0C
+    style OK fill:#EAF3DE,stroke:#3B6D11
+    style OK2 fill:#EAF3DE,stroke:#3B6D11
+    style FAIL fill:#FFE0E0,stroke:#CC3333
+    style I1 fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style I2 fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style I3 fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style I4 fill:#F3E5F5,stroke:#7B1FA2,color:#4A0072
+    style C1 fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    style C2 fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    style C3 fill:#FFF8E1,stroke:#F9A825
+    style C4 fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    style C5 fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
+    style STOP fill:#FFE0E0,stroke:#CC3333
+    style ONTOS fill:#FAECE7,stroke:#993C1D,color:#4A1B0C
+    style PRA fill:#E6F1FB,stroke:#185FA5,color:#042C53
+    style DOK fill:#EAF3DE,stroke:#3B6D11,color:#173404
+    style HER fill:#E1F5EE,stroke:#0F6E56,color:#04342C
 ```
 
 ## Ontological Foundation
