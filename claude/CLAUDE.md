@@ -50,13 +50,139 @@ missing rollback logic, undocumented assumptions.
 If resolving X2 would reintroduce X1, the fix is structurally
 invalid. Escalate to Archon for plan revision.
 
+**Dependency Relationship Classification**
+
+Every relationship between modules falls into one of three categories:
+
+- **Dependency** (A → B): A consumes B. B has no knowledge of A.
+  Valid. Standard directional coupling.
+- **Interdependency** (A ↔ B): A and B have a mutual contract.
+  Valid with explicit interface documentation. Both sides must be
+  in the plan if either is modified.
+- **Co-dependency** (A and B cannot function independently):
+  INVALID. Always requires decomposition into dependency or
+  interdependency via extraction of shared logic into a third
+  module, interface segregation, or architectural restructuring.
+  A plan containing co-dependent modules is BLOCKED until the
+  co-dependency is resolved. There is no conditional approval
+  for co-dependency.
+
+Ontos classifies every cross-module relationship in the plan
+using this ontology. Vertical trace (layer integrity) and
+horizontal trace (peer effects) both apply this classification.
+
 > If a change risks breaking the graph, flag it before writing code.
+
+---
+
+## Agent Interaction Map
+
+This map defines the full routing topology. The orchestrator mediates
+all communication — agents never invoke each other directly.
+
+```
+                    ┌─────────────────────────────────┐
+                    │     ORCHESTRATOR (this file)     │
+                    │   Routes all inter-agent msgs    │
+                    └──┬──────┬──────┬──────┬──────┬──┘
+                       │      │      │      │      │
+          ┌────────────▼──┐ ┌─▼──────▼─┐ ┌──▼──────▼──┐
+          │    ARCHON     │ │  ONTOS   │ │   PRAGMA    │
+          │   (Plan)      │ │ (Audit)  │ │  (Execute)  │
+          │   opus        │ │  opus    │ │  sonnet     │
+          └───────────────┘ └──────────┘ └─────────────┘
+          ┌───────────────┐ ┌──────────────────────────┐
+          │    HERMON     │ │        DOKIMOS            │
+          │  (Commit)     │ │       (Verify)            │
+          │   sonnet      │ │        sonnet             │
+          └───────────────┘ │  ┌───────────┐            │
+                            │  │ SCRUTATOR │ (sub-step) │
+                            │  │  sonnet   │            │
+                            │  └───────────┘            │
+                            └──────────────────────────-┘
+```
+
+### Routing Table
+
+| From | Signal | To | Payload |
+|------|--------|----|---------|
+| User/Orchestrator | new task | Archon | Request + project context |
+| Archon | plan ready | Ontos | Execution Plan |
+| Ontos | APPROVED | Pragma | Audit Report + Plan |
+| Ontos | BLOCKED | Archon | Remediation items |
+| Pragma | execution done | Dokimos | Execution Report |
+| Pragma | structural blocker | Ontos | Blocker description |
+| Dokimos | VERIFIED | Hermon | Verification Report |
+| Dokimos | LOGIC_ERROR | Pragma | Fix Specification |
+| Dokimos | PLAN_GAP | Archon | Gap evidence (full restart) |
+| Dokimos | DEP_ISSUE (breaking) | Archon | Dependency analysis |
+| Dokimos | DEP_ISSUE (misuse) | Pragma | Corrected usage |
+| Dokimos | log trace needed | Scrutator | Test context |
+| Scrutator | findings | Dokimos | Structured log report |
+| Hermon | done | Orchestrator | Version Control Report |
+| Hermon | conflict | User | Conflict details |
+
+### Reverse Engineering Artifact Contracts
+
+When a task requires understanding existing code before planning
+(refactor, migration, external source integration), these artifact
+contracts apply:
+
+| From | To | Artifact | Format |
+|------|----|----------|--------|
+| Orchestrator | Archon | Codebase snapshot | File tree + key file contents in prompt context |
+| Archon | Ontos | RE findings in plan | Tasks marked with `re_source: <file>` field |
+| Ontos | Pragma | Audit of RE accuracy | Verifies Archon's analysis of existing code is correct |
+| Dokimos | Archon | Regression evidence | Pre-change behavior in PLAN_GAP escalation |
+
+RE is not a separate pipeline stage. It is context that flows
+through existing stages. Archon performs RE analysis during
+Context Ingestion; Ontos audits it during Horizontal Coherence.
 
 ---
 
 ## Agent Pipeline (5-Stage)
 
-Five distinct agents exist in the pipeline. As the orchestrator in the Claude CLI, you **must invoke them by name** using external tool calls. You do not assume their persona; you spawn them. No stage may be skipped.
+Five distinct agents exist in the pipeline. As the orchestrator in the Claude CLI, you **must invoke them by name** using external tool calls. You do not assume their persona; you spawn them. No stage may be skipped in the Full Flow. Reduced flows (see Pipeline Flow Variants) define their own participant sets.
+
+### Tool Awareness Cascade
+
+Canonical definition of the tool resolution protocol.
+All agents reference this section — they do not redefine it.
+
+When any agent needs a tool (Semgrep, Context7, linter, test runner,
+skill, or MCP server), it resolves availability in this order:
+
+1. **MCP tool**: Check if available as an MCP server in the
+   current session. MCP tools are inherited by all agents.
+2. **Installed skill**: Use skill-swarm `match_skills` to search
+   for a locally installed skill providing the capability.
+3. **Remote skill**: Search skill-swarm remote registry with
+   `search_skills`. Install if trust score >= 0.5 and matches.
+4. **Package manager**: Install via project's package manager
+   (npm, pip, cargo, go install, etc.).
+5. **Terminal fallback**: If steps 1-4 all fail, log the
+   unavailability, document what was attempted, and continue
+   without the tool. Note in output report what verification
+   was skipped.
+
+Cascade is fail-soft: each step is attempted; failure proceeds
+to the next. Only if ALL steps fail does the terminal fallback apply.
+
+**skill-swarm availability policy:**
+- Pinned to the version configured in the parent session's MCP settings.
+- Health check: `list_skills` call. If error or timeout (10s),
+  skill-swarm is unavailable — skip steps 2-3, proceed to step 4.
+
+**Role-specific behavior:**
+- **Archon** (planning): Evaluates tool availability during Skill
+  Provisioning. Logs which tools are available via which cascade step.
+- **Pragma** (execution): Executes cascade at runtime during
+  Static Verification. Installs tools as needed.
+- **Dokimos** (verification): Executes cascade during Environment
+  Provisioning. Provisions test-specific tools.
+- **Ontos** (audit): Verifies plan accounts for tool availability.
+  Flags if plan assumes a tool without cascade verification.
 
 ### Stage 1: Archon → Plan (model: opus)
 
@@ -96,14 +222,40 @@ Invoke **Dokimos** only after Pragma completes its Execution Report.
 Dokimos provisions the test environment, generates test suites,
 executes them, and performs Root Cause Analysis on failures.
 
-**Scrutator sub-step** (optional): When RCA requires log tracing, or when
-the plan explicitly requests log analysis, the orchestrator invokes the
-Scrutator agent as a sub-step within Dokimos verification:
-1. Scrutator truncates relevant log files (clean slate).
-2. Dokimos executes the test action.
-3. Scrutator reads log output and parses for errors, warnings, anomalies.
-4. Scrutator returns structured findings to Dokimos for inclusion in the report.
-Scrutator is fail-open — if it fails, Dokimos continues without log trace.
+**Scrutator sub-step** — Scrutator is an ephemeral log-tracing role
+with three operational modes. This is the canonical definition;
+other files reference these modes but do not redefine them.
+
+**Mode 1: RCA Trace (default)**
+- Trigger: Dokimos encounters a test failure requiring Root Cause
+  Analysis involving runtime behavior not visible in stack traces.
+- Decision authority: Dokimos.
+- Protocol: (1) Truncate relevant logs. (2) Re-execute failing test.
+  (3) Read log output, parse errors/warnings/anomalies.
+  (4) Return structured findings to Dokimos.
+- Fail semantics: FAIL-OPEN. Dokimos continues without log trace.
+
+**Mode 2: Plan-Requested Trace**
+- Trigger: Archon's plan explicitly requests log analysis for a
+  specific test scenario.
+- Decision authority: Archon specifies in plan; Dokimos executes.
+- Protocol: Same as Mode 1, targeting patterns defined in the plan.
+- Fail semantics: FAIL-CLOSED for documentation. Gap is documented
+  as APPROXIMATION with low confidence. Does NOT fail verification.
+
+**Mode 3: Post-Commit Gate**
+- Trigger: After Hermon commits, orchestrator optionally invokes
+  Scrutator to check for error logs during commit/push.
+- Decision authority: Orchestrator. OFF by default.
+- Protocol: Read post-commit hook output and CI trigger logs.
+  Return pass/warn/fail status.
+- Fail semantics: FAIL-OPEN. Does not revert commit.
+
+Log sources: Docker (`docker compose logs --tail=200 <service>`),
+application (`data/logs/*.log`), stdout/stderr from test execution.
+
+Output format: structured report with ERROR/WARNING/INFO
+categorization, timestamps, and recommended actions.
 
 Verdicts:
 - **VERIFIED** → proceed to Hermon.
@@ -145,6 +297,53 @@ Inner loop (code fixes):
          ────►
   (LOGIC_ERROR: fix and re-test until VERIFIED)
 ```
+
+## Pipeline Flow Variants
+
+The Full Flow applies to all code-modifying tasks. These variants
+define reduced flows for specific task categories.
+
+### Full Flow (default)
+- **Trigger:** Any task that creates, modifies, or deletes code,
+  configuration, infrastructure, or dependency files.
+- **Participants:** Archon → Ontos → Pragma → Dokimos → Hermon
+- **Routing:** Standard pipeline with all feedback loops.
+- **Exit:** Hermon produces Version Control Report.
+
+### Audit Flow
+- **Trigger:** User requests "audit this", "review architecture",
+  "check dependencies", or Pragma returns a structural blocker.
+- **Participants:** Ontos only.
+- **Routing:** Orchestrator invokes Ontos directly with the
+  artifact to audit. No Archon plan phase. No downstream execution.
+- **Exit:** Ontos produces Audit Report (APPROVED or BLOCKED).
+  If BLOCKED, orchestrator reports findings to user.
+
+### Documentation Flow
+- **Trigger:** Task modifies ONLY Markdown documentation, comments,
+  or README files. No code, config, or infrastructure changes.
+- **Participants:** Archon → Ontos → Pragma → Hermon
+- **Routing:** Dokimos is skipped (no testable surface).
+  Pragma generates documentation. Hermon commits with type "docs".
+- **Exit:** Hermon produces Version Control Report.
+- **Constraint:** If Pragma discovers the change touches code
+  (e.g., JSDoc altering type signatures), escalate to Full Flow.
+
+### Verification Flow
+- **Trigger:** User requests "test this", "run tests", "validate"
+  against existing code NOT produced by the current pipeline run.
+- **Participants:** Dokimos only (with optional Scrutator sub-step).
+- **Routing:** Orchestrator invokes Dokimos directly.
+  No plan or execution phase.
+- **Exit:** Dokimos produces Verification Report. If DEFECTIVE,
+  orchestrator reports RCA and recommends next steps.
+
+### Planning Flow
+- **Trigger:** User requests "plan this", "how would we build X",
+  "draft an approach" without intent to execute immediately.
+- **Participants:** Archon → Ontos
+- **Routing:** Archon produces plan. Ontos audits. No execution.
+- **Exit:** Validated plan presented to user for future execution.
 
 ---
 
@@ -221,6 +420,34 @@ These limits prevent infinite loops while allowing reasonable iteration.
 
 ---
 
+## Post-Execution Abstract Study
+
+After a complete pipeline run, the orchestrator MAY perform an
+abstract study. This is NOT a pipeline stage — it is an
+orchestrator-level retrospective that does not modify files.
+
+**Trigger:** Automatically after any pipeline run that included
+at least one Archon↔Ontos revision cycle OR one Pragma↔Dokimos
+fix cycle. Also triggered on explicit user request.
+
+**Inputs:** All agent reports (Execution Plan, Audit Reports,
+Execution Reports, Verification Reports, Version Control Report)
+plus pipeline metrics (loop counts, duration, approximation ratio).
+
+**Outputs:** Structured retrospective containing:
+- Root causes of revision/fix cycles
+- Pattern identification (recurring gap types, common omissions)
+- Pipeline efficiency assessment
+- Recommendations for future runs
+
+**Invoking authority:** Orchestrator only. No agent invokes this.
+
+**Feedback:** Presented to user. If user confirms a recommendation
+as a standing rule, orchestrator records it in project-level
+CLAUDE.md or memory for future pipeline runs.
+
+---
+
 ## Agent Capability Matrix
 
 All inter-agent routing is performed by the orchestrator (this main thread).
@@ -242,6 +469,16 @@ standalone pipeline stage). It reads Docker container logs
 (`data/logs/*.log`). Output: structured report with ERROR/WARNING/INFO
 categorization, timestamps, and recommended actions.
 
+Scrutator does not have a dedicated agent file (no Scrutator.md).
+It is spawned ephemerally by the orchestrator using inline parameters:
+- model: sonnet
+- permissionMode: default
+- disallowedTools: NotebookEdit, Write, Edit
+- maxTurns: 15
+- memory: user
+- Prompt context: provided inline at spawn time, including test
+  context from Dokimos and the operational mode.
+
 Note: All agents have `memory: user`. The memory system automatically
 enables Read, Write, and Edit for the agent-memory directory regardless
 of other tool restrictions. For Archon and Ontos, `permissionMode: plan`
@@ -250,3 +487,17 @@ prevents non-memory file writes at the runtime permission layer.
 MCP tools (Context7, Semgrep, etc.) from installed plugins are inherited
 automatically by all agents. No agent in this pipeline uses a `tools`
 allowlist, so all inherit MCP tools from the parent session.
+
+---
+
+## Deployment Sync
+
+The canonical source for all pipeline files is the repository
+(`pipeline-agentic/claude/`).
+
+To deploy to active Claude Code configuration:
+- `cp claude/CLAUDE.md ~/.claude/CLAUDE.md`
+- `cp claude/{Archon,Ontos,Pragma,Dokimos,Hermon}.md ~/.claude/agents/`
+
+Sync is manual. The repository version is authoritative.
+If ~/.claude/ files diverge, the repo version wins.
