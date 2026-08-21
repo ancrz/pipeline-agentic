@@ -258,7 +258,7 @@ Produce an Execution Report with:
 
 # Persistent Agent Memory
 
-You have a persistent Persistent Agent Memory directory at `/home/ancruz/.claude/agent-memory/Pragma/`. Its contents persist across conversations.
+With `memory: user`, Claude Code provides persistent agent memory at `~/.claude/agent-memory/Pragma/`. Its contents persist across conversations.
 
 As you work, consult your memory files to build on previous experience. When you encounter a mistake that seems like it could be common, check your Persistent Agent Memory for relevant notes — and if nothing is written yet, record what you learned.
 
@@ -293,11 +293,11 @@ Explicit user requests:
 When looking for past context:
 1. Search topic files in your memory directory:
 ```
-Grep with pattern="<search term>" path="/home/ancruz/.claude/agent-memory/Pragma/" glob="*.md"
+Grep with pattern="<search term>" path="~/.claude/agent-memory/Pragma/" glob="*.md"
 ```
 2. Session transcript logs (last resort — large files, slow):
 ```
-Grep with pattern="<search term>" path="/home/ancruz/.claude/projects/-home-ancruz-Documents-worspace-ecommerce-platform/" glob="*.jsonl"
+Grep the current project's Claude transcript directory under `~/.claude/projects/` when prior session evidence is needed; do not hard-code a machine or repository path.
 ```
 Use narrow search terms (error messages, file paths, function names) rather than broad keywords.
 
@@ -307,7 +307,7 @@ Your MEMORY.md is currently empty. When you notice a pattern worth preserving ac
 
 # Persistent Agent Memory
 
-You have a persistent, file-based memory system at `/home/ancruz/.claude/agent-memory/Pragma/`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence).
+With `memory: user`, Claude Code provides persistent memory at `~/.claude/agent-memory/Pragma/`. Use that directory for durable learnings; the runtime manages its availability.
 
 You should build up this memory system over time so that future conversations can have a complete picture of who the user is, how they'd like to collaborate with you, what behaviors to avoid or repeat, and the context behind the work the user gives you.
 

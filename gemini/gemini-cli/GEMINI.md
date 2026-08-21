@@ -22,15 +22,16 @@ then transition to the next role. Sequential role switching.
 The role files are located relative to this file's directory.
 
 ### Antigravity Workflow Mode
-Each role maps to a workflow that can be triggered with `/`.
-Workflows are saved prompts backed by the same role files.
-Create them in: `~/.gemini/antigravity/workflows/` (global)
-or `.gemini/workflows/` (project-level).
+Antigravity workflows are saved Markdown prompts invoked with `/`.
+Create global workflows in Antigravity's **Customizations → Workflows** panel;
+the current product does not document a stable filesystem path for direct
+workflow discovery. The templates in `gemini/antigravity/workflows/` are the
+canonical source material to paste or import there. They are named by role, so
+the global commands are `/archon`, `/ontos`, `/pragma`, `/dokimos`, and
+`/hermon`.
 
-Both modes use the same role files and the same protocol.
-The difference is invocation: CLI reads roles inline;
-Antigravity triggers them as `/plan`, `/audit`, `/execute`,
-`/verify`, `/commit`.
+Both modes use the same role files and protocol. Gemini CLI reads roles
+sequentially; Antigravity selects a global custom agent or invokes a workflow.
 
 ---
 
@@ -83,19 +84,25 @@ Role files are read on demand during role transitions using the
 resolution order above. No additional configuration needed — the
 files just need to be in `~/.gemini/`.
 
-### Antigravity
+### Antigravity / agy
 
-Antigravity also reads `~/.gemini/GEMINI.md` as global rules.
-Workflows (see Workflow Generation below) reference the role files
-using the explicit `~/.gemini/` path in their prompt body.
+`agy` uses the same global `~/.gemini/GEMINI.md` rules. Custom agents are
+discovered as Markdown files with YAML frontmatter under
+`~/.gemini/config/agents/<name>/agent.md`. This is the global, all-workspace
+location; do not put the pipeline in a project-local `.agents/` directory.
 
-Antigravity-specific directories:
+The CLI also maintains runtime state in `~/.gemini/antigravity-cli/`; it is
+not the canonical location for pipeline definitions.
+
+Current global configuration layout:
 ```
-~/.gemini/antigravity/
-├── mcp_config.json            ← MCP servers (skill-swarm, etc.)
-├── skills/                    ← Antigravity skill symlinks
-├── workflows/                 ← global workflows (/plan, /audit, etc.)
-└── global_workflows/          ← alternative workflow location
+~/.gemini/
+├── GEMINI.md                  ← global rules
+├── config/
+│   ├── agents/<role>/agent.md ← global custom agents
+│   └── mcp_config.json        ← global/shared MCP configuration
+├── skills/                    ← global/shared skills
+└── antigravity-cli/           ← CLI state and settings
 ```
 
 ---
@@ -451,23 +458,21 @@ Repository: https://github.com/ancrz/skill-swarm-mcp
 
 ```
 ~/.agent/skills/              # Global source (skill-swarm managed)
-~/.gemini/skills/             # Gemini CLI symlinks
-~/.gemini/antigravity/skills/ # Antigravity symlinks
+~/.gemini/skills/             # Shared Gemini CLI and agy skills
 ```
 
 ---
 
-## Workflow Generation (Antigravity)
+## Workflow templates (Antigravity)
 
-To use this pipeline as Antigravity workflows, create these files.
+Create global workflows in **Customizations → Workflows** and paste the
+matching template from `gemini/antigravity/workflows/`. The product supports
+Markdown workflows but does not publish a stable on-disk discovery path, so
+the repository remains canonical. The role files they reference are global at
+`~/.gemini/`; do not use project-local overrides for this installation.
 
-Workflows can live globally (`~/.gemini/antigravity/workflows/`)
-or per-project (`<project>/.gemini/workflows/`). The role files
-they reference must be in `~/.gemini/` (global) or the project's
-`.gemini/` directory — use the resolution order defined above.
-
-### `/plan` workflow
-**File**: `~/.gemini/antigravity/workflows/plan.md`
+### `/archon` workflow
+**Template**: `gemini/antigravity/workflows/archon.md`
 ```markdown
 Read the file ~/.gemini/archon.md. Assume the Archon role
 and produce an Execution Plan for the following task:
@@ -476,11 +481,10 @@ ${input}
 
 Follow the Topos Integrity Protocol. Output the plan in the
 structured format defined in archon.md. If a project-level
-override exists at .gemini/archon.md, use that instead.
 ```
 
-### `/audit` workflow
-**File**: `~/.gemini/antigravity/workflows/audit.md`
+### `/ontos` workflow
+**Template**: `gemini/antigravity/workflows/ontos.md`
 ```markdown
 Read the file ~/.gemini/ontos.md. Assume the Ontos role
 and audit the Execution Plan produced in this conversation.
@@ -490,11 +494,10 @@ coherence, systemic coherence, and omission gap detection.
 Apply gap cascade checking.
 
 Output verdict: APPROVED or BLOCKED with remediation items.
-If a project-level override exists at .gemini/ontos.md, use that instead.
 ```
 
-### `/execute` workflow
-**File**: `~/.gemini/antigravity/workflows/execute.md`
+### `/pragma` workflow
+**Template**: `gemini/antigravity/workflows/pragma.md`
 ```markdown
 Read the file ~/.gemini/pragma.md. Assume the Pragma role.
 
@@ -505,11 +508,10 @@ code generation, static verification (Semgrep + Context7),
 fix-first resolution.
 
 Output an Execution Report.
-If a project-level override exists at .gemini/pragma.md, use that instead.
 ```
 
-### `/verify` workflow
-**File**: `~/.gemini/antigravity/workflows/verify.md`
+### `/dokimos` workflow
+**Template**: `gemini/antigravity/workflows/dokimos.md`
 ```markdown
 Read the file ~/.gemini/dokimos.md. Assume the Dokimos role.
 
@@ -519,11 +521,10 @@ Provision the test environment, generate test suites, execute them,
 and perform Root Cause Analysis on any failures.
 
 Output a Verification Report with verdict: VERIFIED or DEFECTIVE.
-If a project-level override exists at .gemini/dokimos.md, use that instead.
 ```
 
-### `/commit` workflow
-**File**: `~/.gemini/antigravity/workflows/commit.md`
+### `/hermon` workflow
+**Template**: `gemini/antigravity/workflows/hermon.md`
 ```markdown
 Read the file ~/.gemini/hermon.md. Assume the Hermon role.
 
@@ -534,7 +535,6 @@ Use native git commands. Include Plan-ID, Audit-ID, and
 Verified-By in commit footers.
 
 Output a Version Control Report.
-If a project-level override exists at .gemini/hermon.md, use that instead.
 ```
 
 ---

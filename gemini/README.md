@@ -111,26 +111,27 @@ your-project/
 
 Resolution order: project `.gemini/*.md` > global `~/.gemini/*.md`.
 
-### Antigravity Workflows
+### Antigravity / agy
 
-Each role maps to a workflow triggered with `/` in the Antigravity IDE. Workflows are saved prompts that reference the same role files.
+`agy` shares the global `~/.gemini/GEMINI.md` rules with Gemini CLI. Its
+specialized agents are global Markdown definitions with YAML frontmatter at
+`~/.gemini/config/agents/<role>/agent.md`; they are available in every
+workspace through `/agents`. The runtime directory `~/.gemini/antigravity-cli/`
+stores CLI state and is not the source of truth for agents.
+
+Workflows are saved prompts invoked with `/` in Antigravity. Create them from
+the **Customizations → Workflows** panel. Current documentation does not
+promise a filesystem discovery path, so the repository's workflow Markdown is
+canonical template material rather than an auto-discovered directory.
 
 ```bash
-# Global workflows
-~/.gemini/antigravity/workflows/
-├── plan.md       # /plan → assumes Archon role
-├── audit.md      # /audit → assumes Ontos role
-├── execute.md    # /execute → assumes Pragma role
-├── verify.md     # /verify → assumes Dokimos role
-└── commit.md     # /commit → assumes Hermon role
-
-# Project workflows (override global)
-your-project/.gemini/workflows/
-├── plan.md
-├── audit.md
-├── execute.md
-├── verify.md
-└── commit.md
+# Canonical workflow templates in this repository
+gemini/antigravity/workflows/
+├── archon.md     # /archon → planning role
+├── ontos.md      # /ontos → audit role
+├── pragma.md     # /pragma → execution role
+├── dokimos.md    # /dokimos → verification role
+└── hermon.md     # /hermon → version-control role
 ```
 
 See GEMINI.md for the workflow file contents.
@@ -179,7 +180,7 @@ Repository: https://github.com/ancrz/skill-swarm-mcp
 }
 ```
 
-**Antigravity** (`~/.gemini/antigravity/mcp_config.json`):
+**Antigravity / agy** (`~/.gemini/config/mcp_config.json`):
 ```json
 {
   "mcpServers": {
@@ -202,7 +203,7 @@ For Antigravity, put the GitHub token in the `.env` file inside the skill-swarm 
 ~/.gemini/skills/                   # Gemini CLI (symlinks)
 ├── {skill-name} → ~/.agent/skills/{skill-name}
 
-~/.gemini/antigravity/skills/       # Antigravity (symlinks)
+~/.gemini/skills/                    # Shared by Gemini CLI and agy
 ├── {skill-name} → ~/.agent/skills/{skill-name}
 ```
 
@@ -275,15 +276,10 @@ In practice, the role files create cognitive separation. When the model reads `o
 ├── hermon.md      # Role 5 — version control engine
 ├── settings.json  # MCP server config (skill-swarm, etc.)
 ├── skills/        # Gemini CLI skills (symlinks)
-└── antigravity/
-    ├── mcp_config.json
-    ├── skills/    # Antigravity skills (symlinks)
-    └── workflows/
-        ├── plan.md    # /plan → Archon role
-        ├── audit.md   # /audit → Ontos role
-        ├── execute.md # /execute → Pragma role
-        ├── verify.md  # /verify → Dokimos role
-        └── commit.md  # /commit → Hermon role
+├── config/
+│   ├── mcp_config.json
+│   └── agents/<role>/agent.md  # agy global custom agents
+└── antigravity-cli/ # agy runtime state (not pipeline definitions)
 ```
 
 ## Cross-Platform Compatibility
