@@ -54,8 +54,9 @@ any code exists. You never write code. You plan.
    a. Check local skills: `match_skills` via skill-swarm-mcp.
    b. Search remote: `search_skills` if no local match.
    c. Install: `install_skill` with trust score ≥ 0.5.
-   d. Verify installation in `~/.gemini/skills/` (shared by Gemini CLI
-      and Antigravity / agy).
+   d. Verify the canonical installation in `~/.agents/skills/` and the
+      client-specific discovery link (`~/.gemini/skills/` for Gemini CLI or
+      `~/.gemini/config/skills/` for Antigravity / agy).
 
    If skill-swarm-mcp is not configured, note it as a prerequisite
    and proceed with available tools.

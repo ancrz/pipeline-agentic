@@ -197,14 +197,21 @@ For Antigravity, put the GitHub token in the `.env` file inside the skill-swarm 
 ### Skill Directory
 
 ```
-~/.agent/skills/                    # Global source (skill-swarm managed)
-├── {skill-name}/SKILL.md
+~/.agents/skills/                   # Canonical source; Codex reads directly
+├── {skill-name}/
+│   ├── SKILL.md
+│   ├── scripts/                    # Optional
+│   ├── references/                 # Optional
+│   └── assets/                     # Optional
 
-~/.gemini/skills/                   # Gemini CLI (symlinks)
-├── {skill-name} → ~/.agent/skills/{skill-name}
+~/.gemini/skills/                   # Gemini CLI compatibility links
+├── {skill-name} → ~/.agents/skills/{skill-name}
 
-~/.gemini/skills/                    # Shared by Gemini CLI and agy
-├── {skill-name} → ~/.agent/skills/{skill-name}
+~/.gemini/config/skills/            # agy current global links
+├── {skill-name} → ~/.agents/skills/{skill-name}
+
+~/.gemini/antigravity-cli/skills/  # agy migration-compatible links
+├── {skill-name} → ~/.agents/skills/{skill-name}
 ```
 
 ## Ontological Foundation
@@ -275,11 +282,13 @@ In practice, the role files create cognitive separation. When the model reads `o
 ├── dokimos.md     # Role 4 — verification engine
 ├── hermon.md      # Role 5 — version control engine
 ├── settings.json  # MCP server config (skill-swarm, etc.)
-├── skills/        # Gemini CLI skills (symlinks)
+├── skills/        # Gemini CLI compatibility links
 ├── config/
 │   ├── mcp_config.json
+│   ├── skills/    # agy current global skill links
 │   └── agents/<role>/agent.md  # agy global custom agents
-└── antigravity-cli/ # agy runtime state (not pipeline definitions)
+└── antigravity-cli/
+    └── skills/    # agy migration-compatible skill links
 ```
 
 ## Cross-Platform Compatibility

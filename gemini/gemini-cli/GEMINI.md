@@ -52,7 +52,7 @@ read the corresponding file from this path.
 ├── dokimos.md         ← Stage 4: Verify
 ├── hermon.md          ← Stage 5: Commit
 ├── settings.json      ← MCP server config (skill-swarm, etc.)
-└── skills/            ← installed skills (symlinks from ~/.agent/skills/)
+└── skills/            ← Gemini CLI links from ~/.agents/skills/
 ```
 
 ### Project-level (optional override)
@@ -457,8 +457,10 @@ Repository: https://github.com/ancrz/skill-swarm-mcp
 ### Skill Directory
 
 ```
-~/.agent/skills/              # Global source (skill-swarm managed)
-~/.gemini/skills/             # Shared Gemini CLI and agy skills
+~/.agents/skills/                    # Canonical source; Codex reads directly
+~/.gemini/skills/                    # Gemini CLI compatibility links
+~/.gemini/config/skills/             # agy current global links
+~/.gemini/antigravity-cli/skills/    # agy migration-compatible links
 ```
 
 ---
