@@ -17,3 +17,7 @@ fix-first resolution.
 
 Output an Execution Report.
 If a project-level override exists at .gemini/pragma.md, use that instead.
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

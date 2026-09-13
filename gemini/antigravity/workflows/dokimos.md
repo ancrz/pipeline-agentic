@@ -17,3 +17,7 @@ When RCA requires log tracing, activate the Scrutator sub-step
 
 Output a Verification Report with verdict: VERIFIED or DEFECTIVE.
 If a project-level override exists at .gemini/dokimos.md, use that instead.
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

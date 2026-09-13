@@ -216,3 +216,7 @@ Track across iterations:
                                 ▼
                           [Archon Role] (full restart)
 ```
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

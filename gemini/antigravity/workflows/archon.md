@@ -14,3 +14,7 @@ RE Triage (step 3) to assess ontological compatibility.
 
 Output the plan in the structured format defined in archon.md.
 If a project-level override exists at .gemini/archon.md, use that instead.
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

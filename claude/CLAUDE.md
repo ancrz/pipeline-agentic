@@ -574,3 +574,6 @@ To deploy to active Claude Code configuration:
 
 Sync is manual. The repository version is authoritative.
 If ~/.claude/ files diverge, the repo version wins.
+
+## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
+## Human Code Intake Protocol

@@ -449,3 +449,10 @@ Memory is one of several persistence mechanisms available to you as you assist t
 - **Docker bind mount sync**: After editing files on host, container may serve stale copies. Run `docker compose restart <service>` to force bind mount refresh. Verify with `sha256sum` on both sides.
 - **pytest in Docker**: `pytest` and `pytest-asyncio` are NOT in the backend Docker image by default. Must `pip install pytest pytest-asyncio` after every container restart/recreate. The `tests/` directory is now bind-mounted via `docker-compose.override.yml`.
 - **Hardcoded SQL boolean literals**: `VALUES (..., 1, ...)` in INSERT statements won't be caught by `_BOOL_LITERAL_RE` regex (only catches `column = 0/1` patterns). Use `TRUE`/`FALSE` SQL keywords directly in VALUES clauses for boolean columns.
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
+
+## Pre-flight Checks
+Add Docker Scout to mandatory tools alongside Semgrep/Context7. Human code agnostic decomposition instructions.

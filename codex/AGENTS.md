@@ -47,3 +47,9 @@ directly unless the user explicitly requests the complete pipeline.
 - Dokimos plan gap or breaking dependency issue → Archon.
 - After three unsuccessful iterations of the same loop, report the blocker to
   the user with the evidence needed to decide.
+
+## Agent Interaction Map, Flow Variants, Error Recovery, Tool Awareness, Scrutator, RE Flow
+(Replicated from CLAUDE.md)
+
+## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
+## Human Code Intake Protocol

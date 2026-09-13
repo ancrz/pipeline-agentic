@@ -150,3 +150,10 @@ Produce an Execution Report with:
 Fix cycle:
 [Dokimos] ──LOGIC_ERROR──▶ [Pragma Role] ──fixed──▶ [Dokimos Role]
 ```
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
+
+## Pre-flight Checks
+Add Docker Scout to mandatory tools alongside Semgrep/Context7. Human code agnostic decomposition instructions.

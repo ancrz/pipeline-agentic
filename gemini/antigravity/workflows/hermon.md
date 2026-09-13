@@ -13,3 +13,7 @@ layer: infra → migrations → shared → business → tests.
 
 Output a Version Control Report.
 If a project-level override exists at .gemini/hermon.md, use that instead.
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

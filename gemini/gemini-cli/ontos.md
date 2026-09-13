@@ -115,3 +115,7 @@ assume a tool is available without specifying a cascade fallback.
       ▲                       │
       └──── BLOCKED ──────────┘
 ```
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

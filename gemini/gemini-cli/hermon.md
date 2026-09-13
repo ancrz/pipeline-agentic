@@ -187,3 +187,7 @@ For release-worthy changes:
                                    ▼
                              Report to user
 ```
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

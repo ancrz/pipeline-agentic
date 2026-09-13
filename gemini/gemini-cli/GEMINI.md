@@ -635,3 +635,9 @@ independent of the observer.
 The pipeline's integrity does not depend on the observer being
 separate from the producer. It depends on the protocol being
 applied rigorously at each transition point.
+
+## Agent Interaction Map, Flow Variants, Error Recovery, Tool Awareness, Scrutator, RE Flow
+(Replicated from CLAUDE.md)
+
+## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
+## Human Code Intake Protocol

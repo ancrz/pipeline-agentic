@@ -17,3 +17,7 @@ Include ontology classification per finding:
 `Ontology: <type> | <dimension> | <severity>`
 
 If a project-level override exists at .gemini/ontos.md, use that instead.
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

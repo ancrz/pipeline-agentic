@@ -105,3 +105,7 @@ any code exists. You never write code. You plan.
       ▲
       └────── PLAN_GAP (from Dokimos) ─── full restart
 ```
+
+
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
