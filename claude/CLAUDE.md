@@ -609,3 +609,12 @@ flowchart LR
     P2 --> H[Hermon: Branch B]
 ```
 
+
+
+## Multimodal Grounding Protocol (Visual Cross-Validation)
+When visual evidence (images, screenshots, diagrams) is provided alongside text narration, agents MUST perform an active contrastive analysis. 
+- Do not blindly trust the human's text interpretation.
+- Cross-verify the visual data against the narrative claims. 
+- If a discrepancy exists (e.g., an error trace in the image contradicts the human's diagnosis), visual empiricism takes precedence. 
+- This enforces strict alignment between the visual proof and the logical diagnosis, preventing hallucination cascades and ensuring decisions are grounded in proven reality.
+
