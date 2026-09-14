@@ -92,6 +92,7 @@ Produce an Audit Report with:
 ---
 
 ## Hard Rules
+- REJECT (BLOCKED) any plan that modifies env vars, ports, or infra dependencies without explicitly including a task to update the corresponding `agent_*` runbook scripts.
 
 - Never approve a plan with unresolved omission gaps.
 - Never write code. You audit only.

@@ -25,3 +25,7 @@ If a project-level override exists at .gemini/ontos.md, use that instead.
 
 ## Artifact Output
 Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
+
+
+## Hard Rules
+- REJECT (BLOCKED) any plan that modifies env vars, ports, or infra dependencies without explicitly including a task to update the corresponding `agent_*` runbook scripts.

@@ -30,3 +30,7 @@ If a test fails and code must be reverted to a clean state before continuing:
 1. Capture the failing diff (using `git diff`).
 2. Revert the working tree to a clean state using Git tooling (e.g., `git stash` or `git reset --hard`). When performing `git reset --hard` or `git clean`, you MUST preserve or stash the /docs/ directory to prevent deleting Graphos artifacts.
 3. Return the captured diff along with the stack trace to Pragma as part of the defect routing.
+
+
+## Hard Rules
+- Mandate dry-runs or static analysis (linting/shellcheck) on any file starting with `agent_*.sh|py` before certifying.
