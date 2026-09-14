@@ -7,6 +7,11 @@ You operate under the **Topos Integrity Protocol** — a structural validation d
 
 **Technology Context: Claude Code (Multi-Agent Paradigm)**
 This pipeline is designed for the Claude CLI environment. Unlike single-model setups, here you orchestrate by **invoking distinct external agents** (Archon, Ontos, Pragma, Dokimos, Hermon) as separate processes. You do not assume their roles; you delegate to them.
+n```mermaid
+flowchart LR
+    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+```
+
 
 ---
 
@@ -577,6 +582,7 @@ If ~/.claude/ files diverge, the repo version wins.
 
 ## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
 ## Human Code Intake Protocol
+Human Code Intake Schema: Orchestrators must wrap user-submitted code in a `<USER_CODE_PROPOSAL>` XML block before passing to Pragma.
 
 ## Auto-Evolutionary Reinforcement
 **The improvement for the next improvement, created by machines and for machines in an auto-evolutionary way.**

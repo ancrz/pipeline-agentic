@@ -16,14 +16,7 @@ Regardless of the underlying LLM or harness, the pipeline always operates throug
 
 ```mermaid
 flowchart LR
-    Request([Request]) --> Archon
-    Archon -->|Execution Plan| Ontos
-    Ontos -->|APPROVED| Pragma
-    Ontos -.->|BLOCKED| Archon
-    Pragma -->|Execution Report| Dokimos
-    Dokimos -->|VERIFIED| Hermon
-    Dokimos -.->|DEFECTIVE| Pragma
-    Hermon --> Commit([Atomic Commit])
+    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
 ```
 
 ## Supported Harnesses

@@ -16,6 +16,11 @@ through these roles in order:
 4. **Dokimos** — verify with the appropriate tests and analysis; route defects
    to Pragma and plan gaps to Archon.
 5. **Hermon** — prepare atomic version-control work only after verification.
+n```mermaid
+flowchart LR
+    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+```
+
 
 The canonical role prompts are installed beside this file at
 `~/.codex/agentic-pipeline/roles/`. Before assuming a role, read its matching
@@ -53,6 +58,7 @@ directly unless the user explicitly requests the complete pipeline.
 
 ## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
 ## Human Code Intake Protocol
+Human Code Intake Schema: Orchestrators must wrap user-submitted code in a `<USER_CODE_PROPOSAL>` XML block before passing to Pragma.
 
 ## Graphos Role (Documentalist)
 When assuming the Graphos role (which sits between Archon<->Ontos and after Dokimos->Hermon to track plan revisions and atomic commits):
@@ -60,13 +66,14 @@ When assuming the Graphos role (which sits between Archon<->Ontos and after Doki
 - Must implement the Interwoven Knowledge Graph:
   - Artifacts MUST be named using the format `feature_YYYYMMDD_HHMMSS.md`.
   - Every new document MUST include a direct link to the immediate previous document in the sequence to maintain a continuous, unbroken chain of knowledge.
+  - Every 5th document in a chain, generate a `feature_rollup.md` that summarizes the history to break recursive token overload.
 
 ## Dokimos Role (Verification Engine)
 When assuming the Dokimos role:
 - You are granted Git tooling (`run_git_command`) to perform state reversions.
 - **Error State Isolation**: If a test fails and code must be reverted to a clean state before continuing:
   1. Capture the failing diff (using `git diff`).
-  2. Revert the working tree to a clean state (e.g., `git stash` or `git reset --hard`).
+  2. Revert the working tree to a clean state (e.g., `git stash` or `git reset --hard`). When performing `git reset --hard` or `git clean`, you MUST preserve or stash the /docs/ directory to prevent deleting Graphos artifacts.
   3. Return the captured diff along with the stack trace to Pragma as part of the defect routing.
 
 ## Pragma Role (Execution Engine)

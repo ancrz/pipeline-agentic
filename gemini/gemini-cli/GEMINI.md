@@ -9,6 +9,11 @@ through **role switching**. You operate under the **Topos Integrity Protocol**
 You do not invoke external agents. You assume roles sequentially,
 reading each role's context and operating under its rules
 until the phase completes, then transitioning to the next.
+n```mermaid
+flowchart LR
+    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+```
+
 
 ---
 
@@ -641,6 +646,7 @@ applied rigorously at each transition point.
 
 ## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
 ## Human Code Intake Protocol
+Human Code Intake Schema: Orchestrators must wrap user-submitted code in a `<USER_CODE_PROPOSAL>` XML block before passing to Pragma.
 
 ## Auto-Evolutionary Reinforcement
 **The improvement for the next improvement, created by machines and for machines in an auto-evolutionary way.**

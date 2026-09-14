@@ -7,37 +7,8 @@ This harness implements the [Topos Pipeline Agentic Framework](../README.md) for
 Each stage of the Topos pipeline is handled by an isolated Claude agent with its own system prompt, tools, and execution boundaries:
 
 ```mermaid
-flowchart TD
-    R([User Request]) --> Orchestrator
-
-    subgraph "Claude Code (Orchestrator)"
-        Orchestrator{"Spawn Agent"}
-    end
-
-    subgraph "Agent Sub-Processes"
-        A["`**Archon**
-        (Planner)`"]
-        O["`**Ontos**
-        (Auditor)`"]
-        P["`**Pragma**
-        (Executor)`"]
-        D["`**Dokimos**
-        (Verifier)`"]
-        H["`**Hermon**
-        (Committer)`"]
-    end
-
-    Orchestrator -->|Call| A
-    A -->|Plan| Orchestrator
-    Orchestrator -->|Call| O
-    O -->|Approved| Orchestrator
-    O -.->|Blocked| A
-    Orchestrator -->|Call| P
-    P -->|Changes| Orchestrator
-    Orchestrator -->|Call| D
-    D -->|Verified| Orchestrator
-    D -.->|Defective| P
-    Orchestrator -->|Call| H
+flowchart LR
+    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
 ```
 
 ## Agents

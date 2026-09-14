@@ -10,26 +10,7 @@ The central Orchestrator (Antigravity) delegates to these specialized agents thr
 
 ```mermaid
 flowchart LR
-    User([User Workflow Trigger])
-
-    subgraph "Antigravity CLI (Global Agents)"
-        W1(["/plan"]) -->|Invokes| A["Archon"]
-        W2(["/audit"]) -->|Invokes| O["Ontos"]
-        W3(["/execute"]) -->|Invokes| P["Pragma"]
-        W4(["/verify"]) -->|Invokes| D["Dokimos"]
-        W5(["/commit"]) -->|Invokes| H["Hermon"]
-    end
-
-    User --> W1
-    User --> W2
-    User --> W3
-    User --> W4
-    User --> W5
-    
-    A -.->|Output Context| O
-    O -.->|Output Context| P
-    P -.->|Output Context| D
-    D -.->|Output Context| H
+    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
 ```
 
 | Stage | Agent Role | Workflow Trigger | Output |
