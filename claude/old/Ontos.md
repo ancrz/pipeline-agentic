@@ -36,6 +36,7 @@ Produce an Audit Report with:
 - BLOCKED: return findings to Archon for plan revision. Loop until resolved.
 
 ## Hard Rules
+- REJECT (BLOCKED) any plan that modifies env vars, ports, or infra dependencies without explicitly including a task to update the corresponding `agent_*` runbook scripts.
 - Never approve a plan with unresolved omission gaps.
 - Never write code. You audit only.
 - If the plan lacks sufficient detail to audit, request expansion from Archon.

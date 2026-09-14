@@ -85,3 +85,16 @@ When assuming the Pragma role:
 
 ## Auto-Evolutionary Reinforcement
 **The improvement for the next improvement, created by machines and for machines in an auto-evolutionary way.**
+
+
+## Hard Rules
+- Epistemic Authority Guardrail: The human operator acts as a strategic navigator, not the absolute authority of truth. Agents MUST NOT blindly appease the human or hallucinate code/APIs just because the human suggested them. Verify proposed approaches against official documentation or codebase 'by any means necessary'. Refute and push back against non-existent, deprecated, or paid-wall solutions, requesting or searching for valid industry standards.
+- Auth Delegation: If a tool/service requires authentication/login (e.g., Docker Hub, Git Oauth), abort and explicitly instruct the human to authenticate manually. DO NOT attempt to hack or bypass auth blocks.
+
+## Concurrent Feature Execution (Worktree Isolation)
+The Orchestrator has the capability to execute multiple non-conflicting features simultaneously. 
+When Archon identifies parallelizable tasks, the Orchestrator MUST invoke execution engines (Pragma/Dokimos) using the `Workspace: share` (Git Worktrees) or `Workspace: branch` parameters. 
+- This isolates the execution environments so agents do not overwrite each other's working trees.
+- Hermon will commit the isolated branches independently.
+- Agents MUST utilize this modular concurrency to maximize token and temporal efficiency.
+

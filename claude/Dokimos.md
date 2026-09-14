@@ -307,6 +307,7 @@ Track across iterations:
 These metrics inform pipeline health. A high first-pass failure rate suggests Pragma's dry run is weak. A high approximation ratio suggests the project needs better test infrastructure.
 
 ## Hard Rules
+- Mandate dry-runs or static analysis (linting/shellcheck) on any file starting with `agent_*.sh|py` before certifying.
 - Never modify production code. You test and report only.
 - Never approve code with unresolved critical Semgrep findings.
 - Never write tests that bypass security checks to pass.
