@@ -32,7 +32,7 @@ Create global workflows in Antigravity's **Customizations → Workflows** panel;
 the current product does not document a stable filesystem path for direct
 workflow discovery. The templates in `gemini/antigravity/workflows/` are the
 canonical source material to paste or import there. They are named by role, so
-the global commands are `/archon`, `/ontos`, `/pragma`, `/dokimos`, and
+the global commands are `/archon`, `/graphos`, `/ontos`, `/pragma`, `/dokimos`, and
 `/hermon`.
 
 Both modes use the same role files and protocol. Gemini CLI reads roles
@@ -55,7 +55,8 @@ read the corresponding file from this path.
 ├── ontos.md           ← Stage 2: Audit
 ├── pragma.md          ← Stage 3: Execute
 ├── dokimos.md         ← Stage 4: Verify
-├── hermon.md          ← Stage 5: Commit
+├── hermon.md          ← Stage 6: Commit
+├── graphos.md         ← Stage 1.5/5.5: Document
 ├── settings.json      ← MCP server config (skill-swarm, etc.)
 └── skills/            ← Gemini CLI links from ~/.agents/skills/
 ```
@@ -177,9 +178,9 @@ this classification.
 
 ---
 
-## Role Pipeline (5-Stage)
+## Role Pipeline (6-Stage)
 
-Five roles exist in the pipeline. Assume them in order.
+Six roles exist in the pipeline. Assume them in order.
 No stage may be skipped in the Full Flow. Reduced flows (see Pipeline Flow Variants) define their own role sets.
 
 ### Stage 1: Archon Role → Plan
@@ -193,7 +194,15 @@ to load the full role context.
 Operate under Archon's rules until the Execution Plan is produced.
 If Archon detects blockers or ambiguity, resolve them before continuing.
 
-### Stage 2: Ontos Role → Audit
+### Stage 2: Graphos Role → Weave
+
+Assume the **Graphos role** after Archon's plan is ready, or after Dokimos verifies.
+
+**Read `~/.gemini/graphos.md`** (or project override `.gemini/graphos.md`)
+to load the full role context.
+Graphos writes chronological documentation using a 5-step rollup.
+
+### Stage 3: Ontos Role → Audit
 
 Assume the **Ontos role** when Archon's plan is ready. Always.
 
@@ -208,7 +217,7 @@ Ontos audits the plan and issues a verdict:
 Also assume the Ontos role directly if the user requests an audit,
 review, or stress-test of any plan or architecture.
 
-### Stage 3: Pragma Role → Execute
+### Stage 4: Pragma Role → Execute
 
 Assume the **Pragma role** only after Ontos approves.
 
@@ -220,7 +229,7 @@ static analysis (Semgrep + Context7), fix-first resolution.
 If Pragma discovers a structural blocker during execution,
 it returns to the Ontos role — not to the user.
 
-### Stage 4: Dokimos Role → Verify
+### Stage 5: Dokimos Role → Verify
 
 Assume the **Dokimos role** only after Pragma completes its
 Execution Report.
@@ -266,7 +275,7 @@ the canonical definition; role files reference these modes.
 Log sources: Docker (`docker compose logs --tail=200 <service>`),
 application (`data/logs/*.log`), stdout/stderr.
 
-### Stage 5: Hermon Role → Commit & Push
+### Stage 6: Hermon Role → Commit & Push
 
 Assume the **Hermon role** only after Dokimos issues VERIFIED.
 
@@ -309,12 +318,14 @@ same model changes its behavioral frame based on verdicts and outputs.
 | From Role | Trigger | To Role | Context Carried |
 |-----------|---------|---------|-----------------|
 | (start) | new task | Archon | User request + project context |
-| Archon | plan ready | Ontos | Execution Plan |
+| Archon | plan ready | Graphos | Execution Plan |
+| Graphos | weave docs | Ontos | Interwoven Context |
 | Ontos | APPROVED | Pragma | Audit Report + Plan |
 | Ontos | BLOCKED | Archon | Remediation items |
 | Pragma | execution done | Dokimos | Execution Report |
 | Pragma | structural blocker | Ontos | Blocker description |
-| Dokimos | VERIFIED | Hermon | Verification Report |
+| Dokimos | VERIFIED | Graphos | Verification Report |
+| Graphos | document rollup | Hermon | Atomic Document Updates |
 | Dokimos | LOGIC_ERROR | Pragma | Fix Specification |
 | Dokimos | PLAN_GAP | Archon | Gap evidence (full restart) |
 | Dokimos | DEP_ISSUE (breaking) | Archon | Dependency analysis |

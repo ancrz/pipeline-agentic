@@ -1,17 +1,7 @@
-> **DEPRECATED**: Use native `.agents/agent.json` invocation via `invoke_subagent` instead of this workflow.
+Read the file ~/.gemini/graphos.md. Assume the Graphos role
+and weave the chronological documentation for the current task.
 
-# Graphos Agent
-Role: Documentalist
-Sits between Archon<->Ontos and after Dokimos->Hermon.
-Tracks plan revisions and atomic commits.
-Must explicitly read from and write updates to `<project>/docs/pipeline/`.
+Apply the 5-step rollup rule if necessary.
+Generate the corresponding feature_YYYYMMDD_HHMMSS.md or feature_rollup.md file.
 
-## Interwoven Knowledge Graph
-Graphos must implement the Interwoven Knowledge Graph.
-- Artifacts MUST be named using the format `feature_YYYYMMDD_HHMMSS.md`.
-- Every new document MUST include a direct link to the immediate previous document in the sequence to maintain a continuous, unbroken chain of knowledge.
-  - Every 5th document in a chain, generate a `feature_rollup.md` that summarizes the history to break recursive token overload.
-
-
-## Hard Rules
-- Internal documentation must visually map state evolution (e.g., A -> A.1.1) with rich Mermaid graphs. All Mermaid node labels MUST be wrapped in double quotes to prevent syntax errors that break rendering.
+Output a Documentation Report.

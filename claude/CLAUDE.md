@@ -112,12 +112,14 @@ all communication — agents never invoke each other directly.
 | From | Signal | To | Payload |
 |------|--------|----|---------|
 | User/Orchestrator | new task | Archon | Request + project context |
-| Archon | plan ready | Ontos | Execution Plan |
+| Archon | plan ready | Graphos | Execution Plan |
+| Graphos | weave docs | Ontos | Interwoven Context |
 | Ontos | APPROVED | Pragma | Audit Report + Plan |
 | Ontos | BLOCKED | Archon | Remediation items |
 | Pragma | execution done | Dokimos | Execution Report |
 | Pragma | structural blocker | Ontos | Blocker description |
-| Dokimos | VERIFIED | Hermon | Verification Report |
+| Dokimos | VERIFIED | Graphos | Verification Report |
+| Graphos | document rollup | Hermon | Atomic Document Updates |
 | Dokimos | LOGIC_ERROR | Pragma | Fix Specification |
 | Dokimos | PLAN_GAP | Archon | Gap evidence (full restart) |
 | Dokimos | DEP_ISSUE (breaking) | Archon | Dependency analysis |
@@ -430,6 +432,7 @@ define reduced flows for specific task categories.
 | Agent | Model | Rationale |
 |-------|-------|-----------|
 | Archon | opus | Strategic planning requires deep reasoning about dependency graphs, risk assessment, and architectural decisions. Opus excels at multi-dimensional analysis. |
+| Graphos | sonnet | Weaving documentation and generating rollups is a highly constrained summarization task that relies heavily on context preservation. Sonnet handles context-heavy templating efficiently. |
 | Ontos | opus | Ontological auditing demands exhaustive search for omissions, cascade effects, and structural violations. False negatives here are costly — Opus minimizes them. |
 | Pragma | sonnet | Code generation with a validated plan and clear constraints is well-suited to Sonnet. The plan provides sufficient scaffolding that Opus-level reasoning is unnecessary. Sonnet is faster and more cost-effective for implementation. |
 | Dokimos | sonnet | Test generation follows patterns derived from the stack and the plan. RCA leverages Context7 and Semgrep rather than pure reasoning. Sonnet handles this efficiently. |
@@ -535,6 +538,7 @@ orchestrator, which decides the next routing step based on the agent's verdict.
 | Agent | Model | permissionMode | disallowedTools | maxTurns |
 |-------|-------|----------------|-----------------|----------|
 | Archon | opus | plan | NotebookEdit | 30 |
+| Graphos | sonnet | acceptEdits | NotebookEdit | 20 |
 | Ontos | opus | plan | NotebookEdit | 25 |
 | Pragma | sonnet | acceptEdits | (none) | 50 |
 | Dokimos | sonnet | acceptEdits | NotebookEdit | 50 |

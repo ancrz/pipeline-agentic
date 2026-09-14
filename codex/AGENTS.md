@@ -6,16 +6,17 @@ It applies to every workspace. Do not create, read, or rely on a project-local
 
 ## Operating model
 
-Codex is one orchestrating agent, not five permanently running agents. For a
+Codex is one orchestrating agent, not six permanently running agents. For a
 task that changes code, configuration, infrastructure, or documentation, move
 through these roles in order:
 
 1. **Archon** — plan; do not edit.
-2. **Ontos** — audit the plan; return to Archon when blocked.
-3. **Pragma** — implement only an approved plan.
-4. **Dokimos** — verify with the appropriate tests and analysis; route defects
+2. **Graphos** — weave interwoven knowledge graphs.
+3. **Ontos** — audit the plan; return to Archon when blocked.
+4. **Pragma** — implement only an approved plan.
+5. **Dokimos** — verify with the appropriate tests and analysis; route defects
    to Pragma and plan gaps to Archon.
-5. **Hermon** — prepare atomic version-control work only after verification.
+6. **Hermon** — prepare atomic version-control work only after verification.
 n```mermaid
 flowchart LR
     Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
@@ -24,7 +25,7 @@ flowchart LR
 
 The canonical role prompts are installed beside this file at
 `~/.codex/agentic-pipeline/roles/`. Before assuming a role, read its matching
-file (`archon.md`, `ontos.md`, `pragma.md`, `dokimos.md`, or `hermon.md`).
+file (`archon.md`, `graphos.md`, `ontos.md`, `pragma.md`, `dokimos.md`, or `hermon.md`).
 Treat those files as the source of role-specific constraints and reports.
 
 For a read-only question, architecture discussion, or status request, answer
@@ -44,7 +45,7 @@ directly unless the user explicitly requests the complete pipeline.
 
 ## Role transitions
 
-`Archon → Ontos → Pragma → Dokimos → Hermon`
+`Archon → Graphos → Ontos → Pragma → Dokimos → Graphos → Hermon`
 
 - Ontos `BLOCKED` → Archon.
 - Pragma structural blocker → Ontos.
