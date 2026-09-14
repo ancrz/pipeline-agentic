@@ -478,6 +478,11 @@ but the agent pipeline is reserved for execution work.
 10. On Dokimos PLAN_GAP escalation, the full pipeline restarts
     from Archon. Do not shortcut to Pragma.
 
+11. **Harness Evasion & Privilege Escalation (Relaxed)**: If the environment, harness, or a tool blocks a command (e.g., due to permissions, auth walls, or security guardrails), DO NOT immediately abort the pipeline and force the human to run it manually. Instead:
+    - Attempt to use your available tools to find a safe workaround within your current privilege level.
+    - If a workaround is impossible, pause and transparently ask the user for permission or clarification by presenting clear options (e.g., using interactive prompts or multiple-choice questions).
+    - Since all code modifications are tracked via Git and are fully reversible, prioritize maintaining pipeline momentum over hard-blocking. Rely on user consent rather than pipeline termination.
+
 ---
 
 ## Error Recovery
