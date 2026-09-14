@@ -51,7 +51,6 @@ Produce an Execution Report with:
 
 ## Hard Rules
 - Runbook Encapsulation: Repetitive commands/deployments (like docker compose, environment setups) MUST be encapsulated into executable scripts named `scripts/agent_<action>.sh|py`. These runbooks must document exceptions and env vars.
-- Auth Delegation: If a tool/service requires authentication/login (e.g., Docker Hub, Git Oauth), abort and explicitly instruct the human to authenticate manually. DO NOT attempt to hack or bypass auth blocks.
 - Never skip the dry run.
 - Never output code with unresolved critical findings.
 - If a blocker is discovered during execution, stop and return to Ontos for re-audit. Do not apply workarounds that compromise structural integrity.
