@@ -98,3 +98,13 @@ When Archon identifies parallelizable tasks, the Orchestrator MUST invoke execut
 - Hermon will commit the isolated branches independently.
 - Agents MUST utilize this modular concurrency to maximize token and temporal efficiency.
 
+
+```mermaid
+flowchart LR
+    A[Archon] -->|Split Plan| O[Orchestrator]
+    O -->|Workspace: share| P1[Pragma: Track A]
+    O -->|Workspace: share| P2[Pragma: Track B]
+    P1 --> H[Hermon: Branch A]
+    P2 --> H[Hermon: Branch B]
+```
+
