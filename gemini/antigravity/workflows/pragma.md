@@ -30,3 +30,8 @@ When Dokimos returns a DEFECTIVE verdict with an Error State Isolation payload (
 1. Treat the diff as the failed state that was reverted. You are now operating on a clean working tree.
 2. Analyze the stack trace against the provided diff to identify the root cause of the logic error.
 3. Apply the necessary fixes by recreating the intended changes with the corrections applied, rather than trying to patch the reverted diff directly.
+
+
+## Hard Rules
+- Runbook Encapsulation: Repetitive commands/deployments (like docker compose, environment setups) MUST be encapsulated into executable scripts named `scripts/agent_<action>.sh|py`. These runbooks must document exceptions and env vars.
+- Auth Delegation: If a tool/service requires authentication/login (e.g., Docker Hub, Git Oauth), abort and explicitly instruct the human to authenticate manually. DO NOT attempt to hack or bypass auth blocks.
