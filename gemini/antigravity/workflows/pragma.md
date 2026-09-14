@@ -21,3 +21,8 @@ If a project-level override exists at .gemini/pragma.md, use that instead.
 
 ## Artifact Output
 Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
+## Consuming Error State Isolation
+When Dokimos returns a DEFECTIVE verdict with an Error State Isolation payload (failing diff + stack trace):
+1. Treat the diff as the failed state that was reverted. You are now operating on a clean working tree.
+2. Analyze the stack trace against the provided diff to identify the root cause of the logic error.
+3. Apply the necessary fixes by recreating the intended changes with the corrections applied, rather than trying to patch the reverted diff directly.
