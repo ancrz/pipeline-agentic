@@ -482,3 +482,8 @@ Your MEMORY.md is currently empty. When you save new memories, they will appear 
 
 ## Artifact Output
 Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
+## Error State Isolation
+If a test fails and code must be reverted to a clean state before continuing:
+1. Capture the failing diff (using `git diff`).
+2. Revert the working tree to a clean state using Git tooling (e.g., `git stash` or `git reset --hard`).
+3. Return the captured diff along with the stack trace to Pragma as part of the defect routing.
