@@ -53,3 +53,28 @@ directly unless the user explicitly requests the complete pipeline.
 
 ## Chat Agent Intervention protocol & Pipeline No-Absoluto checkpointing/resumability
 ## Human Code Intake Protocol
+
+## Graphos Role (Documentalist)
+When assuming the Graphos role (which sits between Archon<->Ontos and after Dokimos->Hermon to track plan revisions and atomic commits):
+- Must explicitly read from and write updates to `<project>/docs/pipeline/`.
+- Must implement the Interwoven Knowledge Graph:
+  - Artifacts MUST be named using the format `feature_YYYYMMDD_HHMMSS.md`.
+  - Every new document MUST include a direct link to the immediate previous document in the sequence to maintain a continuous, unbroken chain of knowledge.
+
+## Dokimos Role (Verification Engine)
+When assuming the Dokimos role:
+- You are granted Git tooling (`run_git_command`) to perform state reversions.
+- **Error State Isolation**: If a test fails and code must be reverted to a clean state before continuing:
+  1. Capture the failing diff (using `git diff`).
+  2. Revert the working tree to a clean state (e.g., `git stash` or `git reset --hard`).
+  3. Return the captured diff along with the stack trace to Pragma as part of the defect routing.
+
+## Pragma Role (Execution Engine)
+When assuming the Pragma role:
+- **Consuming Error State Isolation**: When Dokimos returns a DEFECTIVE verdict with an Error State Isolation payload (failing diff + stack trace):
+  1. Treat the diff as the failed state that was reverted. You are now operating on a clean working tree.
+  2. Analyze the stack trace against the provided diff to identify the root cause of the logic error.
+  3. Apply the necessary fixes by recreating the intended changes with the corrections applied, rather than trying to patch the reverted diff directly.
+
+## Auto-Evolutionary Reinforcement
+**The improvement for the next improvement, created by machines and for machines in an auto-evolutionary way.**
