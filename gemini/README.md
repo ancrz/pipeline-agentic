@@ -1,30 +1,28 @@
-# Topos Integrity Pipeline — Antigravity / Gemini Edition
+<div align="center">
+# Antigravity (Gemini) Harness: Topos Protocol
+**True Async Multi-Agent Execution**
+</div>
 
-This harness implements the [Topos Pipeline Agentic Framework](../README.md) for **Google Antigravity** and the **Gemini CLI**.
-
-## Role-Switching via Workflows
-
-Unlike the true multi-agent implementation in Claude Code, the Antigravity implementation maps the 5 Topos roles directly to specialized global agents configured at `~/.gemini/antigravity-cli/agents/{agent_name}/agent.json`. 
-
-The central Orchestrator (Antigravity) delegates to these specialized agents through slash-command workflows:
+## 📌 Implementation
+This harness bridges the gap between legacy CLI Sequential Role-Switching and True Async Orchestration via `.agents/agent.json`.
 
 ```mermaid
-flowchart LR
-    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+flowchart TD
+    subgraph Antigravity Engine
+        CLI[agy CLI]
+        GUI[Antigravity 2.0 IDE]
+    end
+    
+    CLI & GUI -->|Priority 1| Local[.agents/agent.json]
+    CLI & GUI -->|Fallback| Global[~/.gemini/config/]
+    
+    style CLI fill:#10B981,stroke:#059669,color:#fff
+    style GUI fill:#10B981,stroke:#059669,color:#fff
+    style Local fill:#3B82F6,stroke:#2563EB,color:#fff
 ```
 
-| Stage | Agent Role | Workflow Trigger | Output |
-|-------|------------|------------------|--------|
-| 1 | **Archon** | `/plan` | Structured Execution Plan |
-| 2 | **Ontos** | `/audit` | `APPROVED` or `BLOCKED` |
-| 3 | **Pragma** | `/execute` | Execution Report + Code Changes |
-| 4 | **Dokimos** | `/verify` | `VERIFIED` or `DEFECTIVE` |
-| 5 | **Hermon** | `/commit` | Atomic Conventional Commits |
-
-## Execution Model
-
-- **Gemini CLI Mode:** The orchestrator invokes each agent sequentially as a sub-process or sub-conversation. Context is passed down the chain.
-- **Shared Tools:** All agents share access to MCP connections (e.g., via `skill-swarm`) and local CLI tools.
-- **Observation:** The single orchestrating model observes its own prior outputs as it transitions between the roles, ensuring seamless context retention while strictly adhering to the constraints of the current active role (e.g., Ontos cannot write code, only audit).
-
-For details on the structural protocol enforced by these workflows, see the [Main Pipeline Documentation](../README.md).
+## 🚀 Setup
+The `.agents` folder works natively. To deploy the global fallback:
+```bash
+cp gemini/gemini-cli/GEMINI.md ~/.gemini/GEMINI.md
+```

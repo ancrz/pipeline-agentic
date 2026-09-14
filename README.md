@@ -1,68 +1,97 @@
-# Topos Pipeline Agentic Framework (V2 Auto-Evolutionary)
+<div align="center">
 
-The **Topos Pipeline Agentic Framework** is a reference architecture and toolkit for deploying the Topos Integrity Protocol across autonomous AI agents. 
+# Topos Pipeline Agentic Framework
 
-Moving beyond linear scripting, Topos V2 establishes a **True Multi-Agent Concurrent Orchestration System**. It enforces deep reasoning, structural auditing, multi-modal grounding, and strict verification before any code is committed, allowing the AI to act as a *Principal Engineer* rather than a passive assistant.
+**A multi-agent reference architecture enforcing the Topos Integrity Protocol.**
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](#)
+[![Agents](https://img.shields.io/badge/Agents-6_Stage-purple?style=flat-square)](#)
+[![Framework](https://img.shields.io/badge/Multi--Agent-Architecture-green?style=flat-square)](#)
+
+</div>
 
 ---
 
-## 🏗️ The 6-Stage Architecture
+## 🛑 The Problem
 
-Regardless of the underlying LLM or harness, the pipeline operates through six specialized, asynchronous agent roles. The Chat Orchestrator (you/the master agent) guides this flow, pausing or intervening dynamically.
+Autonomous AI coding agents tend to jump straight to execution. They write code without auditing structural dependencies, they destroy visual interfaces by guessing logic, and they overwrite their own history during error recovery. 
+This results in **context explosion, hallucination cascades, and unmaintainable codebases**.
+
+## 🚀 The Solution: Topos V2
+
+Moving beyond linear scripting, Topos V2 establishes a **True Multi-Agent Concurrent Orchestration System**. It enforces deep reasoning, structural auditing, multi-modal grounding, and strict verification before any code is committed. The AI acts as a *Principal Engineer* rather than a passive assistant.
+
+---
+
+## 🏗️ 6-Stage Architecture
+
+Regardless of the underlying LLM or harness, the pipeline operates through six specialized, asynchronous agent roles. 
 
 ```mermaid
 flowchart TD
-    Req[User Request] --> A
+    Req["👤 User Request"] --> A
     
-    subgraph Topos Pipeline
-        A[Archon: Plan] --> G1[Graphos: Weave]
-        G1 --> O[Ontos: Audit]
-        O -.Blocked.-> A
-        O --> P[Pragma: Execute]
+    subgraph Pipeline["Topos Pipeline Orchestration"]
+        direction TB
+        A["🧠 Archon<br/>Strategic Planner"] --> G1["📝 Graphos<br/>Knowledge Weaver"]
+        G1 --> O["🛡️ Ontos<br/>Structural Auditor"]
+        O -.->|BLOCKED| A
+        O --> P["⚙️ Pragma<br/>Execution Engine"]
         
-        P --> D[Dokimos: Verify]
-        D -.Logic Error + Diff.-> P
-        D -.Plan Gap.-> A
+        P --> D["✅ Dokimos<br/>Verification Engine"]
+        D -.->|Logic Error + Diff| P
+        D -.->|Plan Gap| A
         
-        D --> G2[Graphos: Document]
-        G2 --> H[Hermon: Commit]
+        D --> G2["📝 Graphos<br/>Docs & Rollup"]
+        G2 --> H["📦 Hermon<br/>Version Control"]
     end
+
+    style Req fill:#1E293B,stroke:#334155,color:#fff
+    style A fill:#8B5CF6,stroke:#6D28D9,color:#fff
+    style O fill:#3B82F6,stroke:#2563EB,color:#fff
+    style P fill:#10B981,stroke:#059669,color:#fff
+    style D fill:#F59E0B,stroke:#D97706,color:#fff
+    style G1 fill:#475569,stroke:#64748B,color:#fff
+    style G2 fill:#475569,stroke:#64748B,color:#fff
+    style H fill:#334155,stroke:#475569,color:#fff
 ```
 
-1. **Archon (Strategic Planner)**: Analyzes the repository and creates a deterministic Execution Plan. Can split tasks into concurrent *Worktree Tracks*.
-2. **Graphos (Knowledge Weaver)**: Generates interwoven documentation (`feature_YYYY.md`). Uses a 5-step rollup to prevent context explosion while preserving a chronological Linked List of truths.
-3. **Ontos (Structural Auditor)**: Audits the plan against Vertical/Horizontal Tracing and Gap Cascade Prevention. Rejects plans lacking Runbook syncs.
-4. **Pragma (Execution Engine)**: Generates the code. Encapsulates repetitive tasks into `agent_*.sh` runbooks. Ingests failure diffs cleanly.
-5. **Dokimos (Verification Engine)**: Validates execution. Features **Error State Isolation** (reverts working tree via Git and passes the clean error diff back to Pragma).
-6. **Hermon (Version Control)**: Packages verified changes into atomic, Semantic Versioning commits with traceability footers.
+### The Roles
+1. **Archon**: Analyzes requests and creates deterministic Execution Plans. Sets up concurrent *Worktree Tracks*.
+2. **Graphos**: Generates interwoven documentation (`feature_YYYY.md`). Prevents context explosion using a 5-step rollup.
+3. **Ontos**: Audits plans against Vertical/Horizontal Tracing. Blocks plans lacking proper Runbook updates.
+4. **Pragma**: Generates code and encapsulates repetitive tasks into `agent_*.sh` runbooks.
+5. **Dokimos**: Validates execution. Performs **Error State Isolation** (reverts git tree on failure and passes clean error diff back to Pragma).
+6. **Hermon**: Packages verified changes into atomic, Semantic Versioning commits.
 
 ---
 
-## 🧠 Advanced Capabilities (Auto-Evolutionary)
+## 🧠 Auto-Evolutionary Capabilities
 
-- **Concurrent Feature Execution (Worktree Isolation)**: The Orchestrator can spawn multiple subagents (`Workspace: share/branch`) to develop features in parallel via Git worktrees, merging them later.
-- **Epistemic Authority Guardrail**: The human is a strategic navigator, not the absolute truth. Agents are instructed to refute hallucinated APIs, deprecated tools, or non-existent solutions *by any means necessary*.
-- **Multimodal Grounding Protocol**: If visual evidence contradicts human text narration, *visual empiricism takes precedence* to prevent hallucination cascades.
-- **Runbook Encapsulation**: Any repetitive deployment pattern is automatically extracted into tested `scripts/agent_*.sh` files.
+```mermaid
+pie title Protocol Priorities
+    "Structural Coherence" : 35
+    "Epistemic Verification" : 25
+    "Execution Safety" : 25
+    "Token Efficiency" : 15
+```
 
----
-
-## ⚙️ Deployment & Discovery (CLI vs GUI)
-
-The framework utilizes **Progressive Disclosure** and a strict **Workspace > Global** hierarchical discovery model. This ensures both the CLI and the GUI operate under the exact same source of truth.
-
-### Antigravity Integration
-Whether you use the **Antigravity CLI (`agy`)** or the **Antigravity 2.0 GUI (IDE)**:
-1. **Workspace Priority**: When opening this repository, the engine scans the `.agents/` folder. The native `agent.json` definitions override any global settings, allowing true async multi-agent orchestration directly inside the project.
-2. **Global Fallback**: If you open a project without an `.agents/` folder, the engine falls back to the global master contexts deployed at `~/.gemini/GEMINI.md` and `~/.claude/CLAUDE.md`.
-
-*(Note: Legacy slash commands in `/workflows` are deprecated in favor of native `.agents/` subagent invocation).*
+- **Epistemic Authority Guardrail**: The human is a strategic navigator, not the absolute truth. Agents MUST refute hallucinated APIs, deprecated tools, or non-existent solutions *by any means necessary*.
+- **Concurrent Worktrees**: The Orchestrator spawns subagents (`Workspace: share`) to develop features in parallel via isolated Git worktrees.
+- **Multimodal Grounding Protocol**: If visual evidence contradicts text narration, *visual empiricism takes precedence*.
+- **Runbook Encapsulation**: Repetitive patterns are automatically extracted into `scripts/agent_*.sh` and static-tested by Dokimos.
 
 ---
 
-## 🚀 Supported Harnesses
+## ⚙️ Supported Orchestrators
 
-This repository provides distinct implementation harnesses adapted to different orchestration engines:
-- **[Antigravity (Native)](./.agents/)**: True async JSON subagent definitions (`.agents/agent.json`) for seamless GUI/CLI integration.
-- **[Claude Code](./claude/README.md)**: Agent instructions leveraging Claude's native multi-agent capabilities.
-- **[Codex](./codex/README.md)**: Global configuration-based adapter for Codex environments.
+| Platform | Integration Type | Location |
+|---|---|---|
+| **Antigravity CLI & GUI** | Native Async Agents | `/.agents/` overrides global |
+| **Claude Code** | Global Instructions | `/claude/` |
+| **Codex** | Rule Policies | `/codex/` |
+
+---
+<div align="center">
+Built for autonomous engineering.
+</div>

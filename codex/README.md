@@ -1,26 +1,22 @@
-# Topos Integrity Pipeline — Codex Edition
+<div align="center">
+# Codex Harness: Topos Protocol
+**Enforcing Orchestration in Codex**
+</div>
 
-This harness implements the [Topos Pipeline Agentic Framework](../README.md) for **Codex**. Codex uses a global context and instruction model driven by `~/.codex/AGENTS.md`.
-
-## Architecture: Global Sequential Role-Switching
-
-Codex does not spawn separate independent sub-processes for each agent. Instead, it relies on a global adapter that forces the active AI assistant to sequentially load and assume distinct role prompts at each stage of the pipeline:
+## 📌 Implementation
+Codex utilizes rule engines and global text policies. We inject the Topos constraints directly into its global space.
 
 ```mermaid
 flowchart LR
-    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+    C[Codex] -->|Reads| A[AGENTS.md]
+    A -->|Applies Guardrails| E[Execution]
+    
+    style C fill:#F59E0B,stroke:#D97706,color:#fff
+    style A fill:#3B82F6,stroke:#2563EB,color:#fff
 ```
 
-The role definitions are mirrored to `~/.codex/agentic-pipeline/roles/` and activated by Codex as the pipeline progresses.
-
-## Deployment & Configuration
-
-Run the deployer's global pipeline step after Codex is installed:
-
+## 🚀 Setup
+Deploy to the Codex root:
 ```bash
-bash /root/deployer/scripts/ubuntu/setup-pipeline.sh
+cp codex/AGENTS.md ~/.codex/AGENTS.md
 ```
-
-**Key Characteristics:**
-- **No Project-Local Configuration:** The pipeline enforces integrity at the system level; projects do not need their own `AGENTS.md`.
-- **Shared Role Bodies:** The Markdown prompts describing the responsibilities of Archon, Ontos, Pragma, Dokimos, and Hermon are identical to the Gemini implementation, ensuring the Topos Integrity Protocol is strictly followed regardless of the execution medium.
