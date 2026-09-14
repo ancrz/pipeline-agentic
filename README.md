@@ -83,6 +83,18 @@ pie title Protocol Priorities
 
 ---
 
+## 📥 Installation & Prerequisites
+
+This repository serves as the **Canonical Source of Truth** for the Topos V2 Agentic Pipeline. It contains the raw Markdown prompt definitions and configuration files used by various agent orchestrators.
+
+**Prerequisites:**
+- `git` must be installed on your system.
+- If integrating this pipeline into a broader deployment (like `termux-linux-deployer`), you must clone this repository alongside it, as deployment scripts dynamically parse and inject these `.md` files into the global agent environments.
+
+```bash
+git clone https://github.com/ancrz/pipeline-agentic.git
+```
+
 ## ⚙️ Supported Orchestrators
 
 | Platform | Integration Type | Location |
