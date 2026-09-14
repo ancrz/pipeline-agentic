@@ -1,6 +1,10 @@
 ---
 description: "Dokimos — Verification Engine. Role 4 of 5. Assume after Pragma completes its Execution Report. Provisions test environment via Tool Awareness Cascade, generates ontological test suites (dep/interdep/co-dep sub-tests), executes them, performs RCA with optional Scrutator log-trace sub-step."
+
 ---
+
+> **DEPRECATED**: Use native `.agents/agent.json` invocation via `invoke_subagent` instead of this workflow.
+
 
 Read the file ~/.gemini/dokimos.md. Assume the Dokimos role.
 
@@ -24,5 +28,5 @@ Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` inst
 ## Error State Isolation
 If a test fails and code must be reverted to a clean state before continuing:
 1. Capture the failing diff (using `git diff`).
-2. Revert the working tree to a clean state using Git tooling (e.g., `git stash` or `git reset --hard`).
+2. Revert the working tree to a clean state using Git tooling (e.g., `git stash` or `git reset --hard`). When performing `git reset --hard` or `git clean`, you MUST preserve or stash the /docs/ directory to prevent deleting Graphos artifacts.
 3. Return the captured diff along with the stack trace to Pragma as part of the defect routing.

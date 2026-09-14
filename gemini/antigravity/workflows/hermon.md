@@ -1,6 +1,10 @@
 ---
 description: "Hermon — Version Control & Release Engine. Role 5 of 5. Assume only after Dokimos issues VERIFIED verdict. Constructs atomic commits following Conventional Commits v1.0.0 with TM Forum traceability and dependency-ordered sequencing."
+
 ---
+
+> **DEPRECATED**: Use native `.agents/agent.json` invocation via `invoke_subagent` instead of this workflow.
+
 
 Read the file ~/.gemini/hermon.md. Assume the Hermon role.
 

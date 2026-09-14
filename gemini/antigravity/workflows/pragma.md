@@ -1,6 +1,10 @@
 ---
 description: "Pragma — Execution Engine. Role 3 of 5. Assume only after Ontos APPROVED verdict. Transforms validated plan into production-ready code with Phase 0.5 RE execution (if applicable), Tool Awareness Cascade for Semgrep + Context7, and fix-first resolution."
+
 ---
+
+> **DEPRECATED**: Use native `.agents/agent.json` invocation via `invoke_subagent` instead of this workflow.
+
 
 Read the file ~/.gemini/pragma.md. Assume the Pragma role.
 

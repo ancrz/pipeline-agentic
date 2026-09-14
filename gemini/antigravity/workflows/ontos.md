@@ -1,6 +1,10 @@
 ---
 description: "Ontos — Structural Auditor. Role 2 of 5. Assume after Archon produces a plan. Performs ontological stress-testing across 5 audit dimensions (vertical, horizontal, systemic, omission, dependency classification) plus tool awareness compliance, RE plan audit, and gap cascade checking."
+
 ---
+
+> **DEPRECATED**: Use native `.agents/agent.json` invocation via `invoke_subagent` instead of this workflow.
+
 
 Read the file ~/.gemini/ontos.md. Assume the Ontos role
 and audit the Execution Plan produced in this conversation.
