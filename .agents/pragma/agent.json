@@ -1,5 +1,6 @@
 {
   "name": "pragma",
+  "model": "claude-3-7-sonnet-20250219",
   "description": "Execution Engine. Executes the approved plan, modifies code, tests, and performs tasks.",
   "enable_write_tools": true,
   "enable_subagent_tools": false,
