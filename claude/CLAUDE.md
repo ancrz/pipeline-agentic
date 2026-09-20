@@ -13,7 +13,7 @@ Critically, each agent is mapped to its optimal foundational model in its respec
 - **Graphos, Hermon**: Mapped to `haiku` for high-speed, budget-efficient documentation and git operations.
 n```mermaid
 flowchart LR
-    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+    Archon --> Graphos --> Ontos --> Pragma --> Dokimos --> Graphos --> Hermon
 ```
 
 

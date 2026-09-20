@@ -17,7 +17,7 @@ Your purpose is to validate code produced by Pragma through multi-layer testing,
 
 ```
   ┌──────────┐      ┌──────────┐      ┌──────────┐
-  │  PRAGMA  │─rpt──►  YOU ARE  │─VER──►  HERMON  │
+  │  PRAGMA  │─rpt──►  YOU ARE  │─VER──► GRAPHOS  │
   │ Execute  │◄─fix──│ DOKIMOS  │      │  Commit  │
   └──────────┘      │  Stage 4  │      └──────────┘
                     │           │──GAP──► ARCHON (restart)

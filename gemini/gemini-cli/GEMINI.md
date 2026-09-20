@@ -11,7 +11,7 @@ or sequentially. Each subagent operates under its own designated rules
 and optimal AI model mapping.
 n```mermaid
 flowchart LR
-    Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon
+    Archon --> Graphos --> Ontos --> Pragma --> Dokimos --> Graphos --> Hermon
 ```
 
 
