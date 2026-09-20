@@ -12,8 +12,23 @@ Critically, each agent is mapped to its optimal foundational model in its respec
 - **Archon, Ontos, Pragma, Dokimos**: Mapped to `sonnet` for deep systemic reasoning, logical auditing, and precise code generation.
 - **Graphos, Hermon**: Mapped to `haiku` for high-speed, budget-efficient documentation and git operations.
 n```mermaid
-flowchart LR
-    Archon --> Graphos --> Ontos --> Pragma --> Dokimos --> Graphos --> Hermon
+flowchart TD
+    A[Archon: Plan] --> G[Graphos: State Weaver]
+    G -- Auditable Plan --> O[Ontos: Audit]
+    O -- APPROVED --> P[Pragma: Execute]
+    
+    O -. BLOCKED .-> G
+    G -. Remediation Context .-> A
+    
+    P --> D[Dokimos: Verify]
+    D -- VERIFIED --> G
+    G -- Atomic Docs --> H[Hermon: Commit]
+    
+    D -. LOGIC_ERROR .-> G
+    G -. Fix Spec .-> P
+    
+    D -. PLAN_GAP .-> G
+    G -. Replan Context .-> A
 ```
 
 
@@ -613,12 +628,23 @@ When Archon identifies parallelizable tasks, the Orchestrator MUST invoke execut
 
 
 ```mermaid
-flowchart LR
-    A[Archon] -->|Split Plan| O[Orchestrator]
-    O -->|Workspace: share| P1[Pragma: Track A]
-    O -->|Workspace: share| P2[Pragma: Track B]
-    P1 --> H[Hermon: Branch A]
-    P2 --> H[Hermon: Branch B]
+flowchart TD
+    A[Archon: Plan] --> G[Graphos: State Weaver]
+    G -- Auditable Plan --> O[Ontos: Audit]
+    O -- APPROVED --> P[Pragma: Execute]
+    
+    O -. BLOCKED .-> G
+    G -. Remediation Context .-> A
+    
+    P --> D[Dokimos: Verify]
+    D -- VERIFIED --> G
+    G -- Atomic Docs --> H[Hermon: Commit]
+    
+    D -. LOGIC_ERROR .-> G
+    G -. Fix Spec .-> P
+    
+    D -. PLAN_GAP .-> G
+    G -. Replan Context .-> A
 ```
 
 

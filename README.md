@@ -29,31 +29,22 @@ Regardless of the underlying LLM or harness, the pipeline operates through six s
 
 ```mermaid
 flowchart TD
-    Req["👤 User Request"] --> A
+    A[Archon: Plan] --> G[Graphos: State Weaver]
+    G -- Auditable Plan --> O[Ontos: Audit]
+    O -- APPROVED --> P[Pragma: Execute]
     
-    subgraph Pipeline["Topos Pipeline Orchestration"]
-        direction TB
-        A["🧠 Archon<br/>Strategic Planner"] --> G1["📝 Graphos<br/>Knowledge Weaver"]
-        G1 --> O["🛡️ Ontos<br/>Structural Auditor"]
-        O -.->|BLOCKED| A
-        O --> P["⚙️ Pragma<br/>Execution Engine"]
-        
-        P --> D["✅ Dokimos<br/>Verification Engine"]
-        D -.->|Logic Error + Diff| P
-        D -.->|Plan Gap| A
-        
-        D --> G2["📝 Graphos<br/>Docs & Rollup"]
-        G2 --> H["📦 Hermon<br/>Version Control"]
-    end
-
-    style Req fill:#1E293B,stroke:#334155,color:#fff
-    style A fill:#8B5CF6,stroke:#6D28D9,color:#fff
-    style O fill:#3B82F6,stroke:#2563EB,color:#fff
-    style P fill:#10B981,stroke:#059669,color:#fff
-    style D fill:#F59E0B,stroke:#D97706,color:#fff
-    style G1 fill:#475569,stroke:#64748B,color:#fff
-    style G2 fill:#475569,stroke:#64748B,color:#fff
-    style H fill:#334155,stroke:#475569,color:#fff
+    O -. BLOCKED .-> G
+    G -. Remediation Context .-> A
+    
+    P --> D[Dokimos: Verify]
+    D -- VERIFIED --> G
+    G -- Atomic Docs --> H[Hermon: Commit]
+    
+    D -. LOGIC_ERROR .-> G
+    G -. Fix Spec .-> P
+    
+    D -. PLAN_GAP .-> G
+    G -. Replan Context .-> A
 ```
 
 ### The Roles
