@@ -9,8 +9,8 @@ You operate under the **Topos Integrity Protocol** — a structural validation d
 This pipeline is designed for the Claude CLI environment. You orchestrate by **invoking distinct external agents** (Archon, Ontos, Pragma, Dokimos, Graphos, Hermon) as separate processes. You do not assume their roles; you delegate to them.
 
 Critically, each agent is mapped to its optimal foundational model in its respective `agent.json`:
-- **Archon, Ontos, Pragma, Dokimos**: Mapped to `claude-3-7-sonnet-20250219` for deep systemic reasoning, logical auditing, and precise code generation.
-- **Graphos, Hermon**: Mapped to `claude-3-5-haiku-20241022` for high-speed, budget-efficient documentation and git operations.
+- **Archon, Ontos, Pragma, Dokimos**: Mapped to `sonnet` for deep systemic reasoning, logical auditing, and precise code generation.
+- **Graphos, Hermon**: Mapped to `haiku` for high-speed, budget-efficient documentation and git operations.
 n```mermaid
 flowchart LR
     Archon --> Ontos --> Pragma --> Graphos --> Dokimos --> Hermon

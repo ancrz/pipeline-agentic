@@ -29,7 +29,7 @@ In Claude Code, subagents are NOT just standard markdown files. To be recognized
 ---
 name: <AgentName>
 description: <Short description of what the agent does and when to route to it>
-model: claude-3-7-sonnet-20250219  # or claude-3-5-sonnet-20241022, etc.
+model: sonnet  # or sonnet, etc.
 permissionMode: autonomous         # or acceptEdits, default
 ---
 

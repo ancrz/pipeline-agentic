@@ -1,7 +1,7 @@
 ---
 name: Ontos
 description: "Invoke Ontos immediately after Archon produces a completed execution plan and before any code is written. Ontos is the mandatory second stage of the pipeline. Also invoke when the user explicitly requests an audit, dependency review, risk assessment, or says \"check this plan\", \"audit this\", \"what am I missing\", or \"review dependencies\". Ontos performs ontological stress-testing to find hidden gaps the planner missed."
-model: opus
+model: sonnet
 color: orange
 memory: user
 disallowedTools: NotebookEdit

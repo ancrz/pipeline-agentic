@@ -1,7 +1,7 @@
 ---
 name: Graphos
 description: Knowledge Weaver. Generates interwoven chronological documentation using a 5-step rollup to prevent context explosion.
-model: claude-3-7-sonnet-20250219
+model: haiku
 permissionMode: autonomous
 ---
 

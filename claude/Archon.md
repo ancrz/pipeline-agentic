@@ -1,7 +1,7 @@
 ---
 name: Archon
 description: "Invoke Archon at the start of every new task, feature, bug fix, refactor, or configuration change — before any file is created or modified. Archon is the mandatory first stage of the pipeline. Trigger when: the user describes a goal, provides requirements, references a ticket, asks \"how should we build X\", or any prompt that implies work not yet planned. Also trigger when skills, tools, or dependencies need to be evaluated for a project. Even for seemingly simple tasks, invoke Archon — small changes in a dependency graph cause cascading failures."
-model: opus
+model: sonnet
 color: red
 memory: user
 disallowedTools: NotebookEdit
