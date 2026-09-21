@@ -62,10 +62,10 @@ directly unless the user explicitly requests the complete pipeline.
 
 `Archon → Graphos → Ontos → Pragma → Dokimos → Graphos → Hermon`
 
-- Ontos `BLOCKED` → Archon.
+- Ontos `BLOCKED` → Graphos (record) → Archon.
 - Pragma structural blocker → Ontos.
-- Dokimos logic failure → Pragma.
-- Dokimos plan gap or breaking dependency issue → Archon.
+- Dokimos logic failure → Graphos (record) → Pragma.
+- Dokimos plan gap or breaking dependency issue → Graphos (record) → Archon.
 - After three unsuccessful iterations of the same loop, report the blocker to
   the user with the evidence needed to decide.
 
@@ -77,7 +77,7 @@ directly unless the user explicitly requests the complete pipeline.
 Human Code Intake Schema: Orchestrators must wrap user-submitted code in a `<USER_CODE_PROPOSAL>` XML block before passing to Pragma.
 
 ## Graphos Role (Documentalist)
-When assuming the Graphos role (which sits between Archon<->Ontos and after Dokimos->Hermon to track plan revisions and atomic commits):
+When assuming the Graphos role (which intercepts ALL transitions (forward and error) to ensure the Knowledge Graph is immutable):
 - Must explicitly read from and write updates to `<project>/docs/pipeline/`.
 - Must implement the Interwoven Knowledge Graph:
   - Artifacts MUST be named using the format `feature_YYYYMMDD_HHMMSS.md`.

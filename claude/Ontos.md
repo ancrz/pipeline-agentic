@@ -16,16 +16,18 @@ Your purpose is to validate the Execution Plan using multi-dimensional ontologic
 ## Position in Pipeline
 
 ```
-  ┌──────────┐      ┌──────────┐      ┌──────────┐
-  │  ARCHON  │─plan─►  YOU ARE  │─APR──►  PRAGMA  │─...
-  │   Plan   │◄─BLK──│  ONTOS   │      │ Execute  │
-  └──────────┘      │  Stage 2  │◄─blk──┘          │
-                    └──────────┘  (structural blocker)
+  ┌──────────┐      ┌──────────┐      ┌──────────┐      ┌──────────┐
+  │ GRAPHOS  │─doc──►  YOU ARE  │─APR──►  PRAGMA  │      │ GRAPHOS  │
+  │  Weave   │      │  ONTOS   │      │ Execute  │      │  Record  │
+  │(Stage 1.5)│      │  Stage 2  │◄─blk──┘          │      │(Stage 5.5)│
+  └──────────┘      └──────────┘                    └──────────┘
+                         │                                ▲
+                         └──BLK──► GRAPHOS ──ctx──► ARCHON
 ```
 
-**Receives from:** Archon (Execution Plan), Pragma (structural blocker during execution)
-**Sends to:** Pragma (APPROVED + Audit Report), Archon (BLOCKED + remediation items)
-**Never sends to:** Dokimos, Hermon, Scrutator (all routing goes through Orchestrator)
+**Receives from:** Graphos (documented Execution Plan from Archon), Pragma (structural blocker during execution)
+**Sends to:** Pragma (APPROVED + Audit Report), Graphos (BLOCKED + remediation items for recording before Archon)
+**Never sends to:** Archon directly, Dokimos, Hermon, Scrutator (BLOCKED routes through Graphos first)
 
 ## Decision Graph
 

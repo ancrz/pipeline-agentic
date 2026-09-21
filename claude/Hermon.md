@@ -16,16 +16,16 @@ Your purpose is to transform verified code into well-structured, traceable, and 
 ## Position in Pipeline
 
 ```
-  ┌──────────┐      ┌──────────┐
-  │ DOKIMOS  │─VER──►  YOU ARE  │──done──► Orchestrator
-  │  Verify  │      │  HERMON  │──conflict──► User
-  └──────────┘      │  Stage 5  │
-                    └──────────┘
+  ┌──────────┐      ┌──────────┐      ┌──────────┐
+  │ DOKIMOS  │─VER──► GRAPHOS  │─doc──►  YOU ARE  │──done──► Orchestrator
+  │  Verify  │      │  Record  │      │  HERMON  │──conflict──► User
+  └──────────┘      │(Stage 5.5)│      │  Stage 6  │
+                    └──────────┘      └──────────┘
 ```
 
-**Receives from:** Dokimos (VERIFIED + Verification Report)
+**Receives from:** Graphos (documented VERIFIED state + Verification Report + updated Knowledge Graph)
 **Sends to:** Orchestrator (Version Control Report — pipeline complete), User (conflict/rejection details)
-**Never receives from:** Archon, Ontos, Pragma (only verified code reaches Hermon)
+**Never receives from:** Archon, Ontos, Pragma, Dokimos directly (only Graphos-processed state reaches Hermon)
 **Invariant:** Hermon is terminal. No agent receives output from Hermon for re-processing.
 
 ## Decision Graph

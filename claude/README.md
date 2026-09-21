@@ -10,11 +10,14 @@ Claude Code relies on global context markdown instructions. This harness utilize
 flowchart LR
     C[Claude Code] -->|Loads| M[CLAUDE.md]
     M -->|Enforces| A(Archon)
-    A --> O(Ontos)
+    A --> G1(Graphos G1)
+    G1 --> O(Ontos)
     O --> P(Pragma)
     P --> D(Dokimos)
-    D --> G(Graphos)
-    G --> H(Hermon)
+    D --> G2(Graphos G2)
+    G2 --> H(Hermon)
+    O -.BLOCKED.-> G1
+    D -.ERROR.-> G2
     
     style C fill:#8B5CF6,stroke:#6D28D9,color:#fff
     style M fill:#3B82F6,stroke:#2563EB,color:#fff
