@@ -606,6 +606,8 @@ but the role pipeline is reserved for execution work.
    - Dokimos approximation ratio.
 10. On Dokimos PLAN_GAP, the full pipeline restarts from Archon.
     Do not shortcut to Pragma.
+11. **Chat Agent Intercession:** Subagents can be interceded or overridden by the chat agent via explicit user instructions, EXCEPT for Graphos. Graphos's flow is imperative and mandatory; it must always run to document success and failure states before routing continues.
+
 
 ---
 

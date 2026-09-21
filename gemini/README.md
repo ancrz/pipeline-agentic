@@ -3,6 +3,10 @@
 **True Async Multi-Agent Execution**
 </div>
 
+
+## 🌟 Status: Replicated from Source
+The agent system prompts and topological graphs in this harness have been successfully replicated from the mature Claude source of truth. They are converted into JSON blocks for `.agents/` and injected with Antigravity-specific model mappings (`pro` for execution/auditing, `flash` for fast documentation/version control), achieving True Async Multi-Agent Execution.
+
 ## 📌 Implementation
 This harness bridges the gap between legacy CLI Sequential Role-Switching and True Async Orchestration via `.agents/agent.json`.
 

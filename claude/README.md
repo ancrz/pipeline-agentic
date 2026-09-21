@@ -3,6 +3,10 @@
 **Implementing the 6-stage Topos Pipeline in Claude Code**
 </div>
 
+
+## 🌟 Status: Source of Truth
+The Claude structure represents the most mature and complete implementation of the Topos Pipeline. Its multi-agent paradigm, featuring strict YAML frontmatter and explicit model mapping (e.g., `sonnet` for heavy logic, `haiku` for documentation/version control), serves as the **Canonical Source of Truth**. This architecture has been successfully replicated and adapted across all other role-based harnesses (Codex, Antigravity) while respecting their specific form factors.
+
 ## 📌 Implementation
 Claude Code relies on global context markdown instructions. This harness utilizes the `CLAUDE.md` master file to dictate the orchestration behavior.
 

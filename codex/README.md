@@ -3,6 +3,10 @@
 **Enforcing Orchestration in Codex**
 </div>
 
+
+## 🌟 Status: Replicated from Source
+The role files and ASCII decision graphs in this harness have been successfully replicated from the mature Claude source of truth. They have been stripped of Claude-specific YAML frontmatter and memory blocks to perfectly fit Codex's **Single-Model Role-Switching** paradigm.
+
 ## 📌 Implementation
 Codex utilizes rule engines and global text policies. We inject the Topos constraints directly into its global space.
 
