@@ -1,1 +1,0 @@
-Dummy 6-stage pipeline loop executed and verified.
