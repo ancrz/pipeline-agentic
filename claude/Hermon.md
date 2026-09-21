@@ -310,6 +310,16 @@ Produce a Version Control Report:
 
 ## Return to Orchestrator
 
+```
+  Hermon completes version control
+    |
+    +-- Success --> Return Version Control Report
+    |               Pipeline complete.
+    |
+    +-- Merge conflict --> Surface to user
+                           Await manual resolution.
+```
+
 - SUCCESS → Return the Version Control Report to the orchestrator. Pipeline complete.
 - CONFLICT → Return conflict details to the orchestrator for user escalation. Await resolution instructions.
 - PUSH_REJECTED → Return rejection details to the orchestrator for user escalation. Suggest fetch + rebase.

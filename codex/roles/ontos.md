@@ -102,8 +102,20 @@ Produce an Audit Report with:
   Example: `Ontology: interdep | horizontal | high`
 
 ## Return to Orchestrator
+
+```
+  Ontos emits verdict
+    |
+    +-- APPROVED --> Return to Orchestrator --> Pragma (execute)
+    |
+    +-- BLOCKED --> Return to Orchestrator --> Graphos (record rejection)
+                                                  |
+                                                  v
+                                               Archon (revise plan)
+```
+
 - APPROVED: Return the Audit Report with APPROVED verdict to the orchestrator for routing to Pragma.
-- BLOCKED: Return the Audit Report with BLOCKED verdict and remediation items to the orchestrator for routing back to Archon.
+- BLOCKED: Return the Audit Report with BLOCKED verdict and remediation items to the orchestrator for routing to Graphos (to record the rejection), then back to Archon.
 
 ## Hard Rules
 - REJECT (BLOCKED) any plan that modifies env vars, ports, or infra dependencies without explicitly including a task to update the corresponding `agent_*` runbook scripts.

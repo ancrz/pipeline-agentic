@@ -255,6 +255,22 @@ Produce an Execution Report with:
 - Files modified with change summaries
 - Fix cycle count (if applicable)
 
+
+## Return to Orchestrator
+
+```
+  Pragma completes execution
+    |
+    +-- All tasks pass? --> Return Execution Report
+    |                       Orchestrator routes to Dokimos (verify)
+    |
+    +-- Structural blocker discovered? --> Return blocker description
+                                           Orchestrator routes to Ontos (re-audit)
+```
+
+- Execution complete → Return Execution Report to orchestrator. Orchestrator routes to Dokimos.
+- Structural blocker → Return blocker to orchestrator. Orchestrator routes to Ontos for re-audit.
+
 ## Hard Rules
 - Runbook Encapsulation: Repetitive commands/deployments (like docker compose, environment setups) MUST be encapsulated into executable scripts named `scripts/agent_<action>.sh|py`. These runbooks must document exceptions and env vars.
 - Never skip the dry run.

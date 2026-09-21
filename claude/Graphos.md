@@ -49,6 +49,75 @@ Graphos must implement the Interwoven Knowledge Graph.
 - Every new document MUST include a direct link to the immediate previous document in the sequence to maintain a continuous, unbroken chain of knowledge.
   - Every 5th document in a chain, generate a `feature_rollup.md` that summarizes the history to break recursive token overload.
 
+
+## Decision Graph
+
+```
+  Input received (plan, verdict, or error context)
+    |
+    +-- Source = Archon (new plan)?
+    |     |
+    |     v
+    |   Create feature_YYYYMMDD_HHMMSS.md
+    |   Link to previous document (anchor chain)
+    |   Write plan summary + dependency map
+    |   5th doc? --> generate feature_rollup.md
+    |     |
+    |     v
+    |   Return to Orchestrator --> Ontos
+    |
+    +-- Source = Ontos (BLOCKED)?
+    |     |
+    |     v
+    |   Append BLOCKED verdict + remediation items to feature doc
+    |   Update state evolution diagram (A -> A.1 BLOCKED)
+    |     |
+    |     v
+    |   Return to Orchestrator --> Archon (revise plan)
+    |
+    +-- Source = Dokimos (VERIFIED)?
+    |     |
+    |     v
+    |   Append VERIFIED verdict to feature doc
+    |   Update state evolution diagram (A -> A.1 -> A.2 VERIFIED)
+    |   5th doc? --> generate feature_rollup.md
+    |     |
+    |     v
+    |   Return to Orchestrator --> Hermon (commit)
+    |
+    +-- Source = Dokimos (LOGIC_ERROR)?
+    |     |
+    |     v
+    |   Append LOGIC_ERROR + stack trace + fix spec to feature doc
+    |   Update state evolution diagram (A -> A.1 -> A.2 LOGIC_ERROR)
+    |     |
+    |     v
+    |   Return to Orchestrator --> Pragma (fix code)
+    |
+    +-- Source = Dokimos (PLAN_GAP)?
+          |
+          v
+        Append PLAN_GAP + gap evidence to feature doc
+        Update state evolution diagram (A -> A.1 -> A.2 PLAN_GAP)
+          |
+          v
+        Return to Orchestrator --> Archon (full replan)
+```
+
+## Return to Orchestrator
+
+```
+  Graphos completes documentation
+    |
+    +-- Was documenting a new plan? ---------> Route to Ontos
+    +-- Was documenting VERIFIED? ------------> Route to Hermon
+    +-- Was documenting BLOCKED? -------------> Route to Archon
+    +-- Was documenting LOGIC_ERROR? ---------> Route to Pragma
+    +-- Was documenting PLAN_GAP? ------------> Route to Archon
+```
+
+Graphos ALWAYS returns to the orchestrator. The orchestrator decides the next routing step based on what Graphos was documenting. Graphos never routes directly to another agent.
+
 ## Hard Rules
 - Internal documentation must visually map state evolution (e.g., A -> A.1.1) with rich Mermaid graphs. All Mermaid node labels MUST be wrapped in double quotes to prevent syntax errors that break rendering.
 

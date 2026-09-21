@@ -284,12 +284,34 @@ Produce a Verification Report:
 
 ## Return to Orchestrator
 
-- VERIFIED → Return the Verification Report with VERIFIED verdict to the orchestrator.
-- DEFECTIVE (LOGIC_ERROR) → Return the Verification Report with DEFECTIVE verdict and Fix Specification to the orchestrator for routing to Pragma.
-- DEFECTIVE (PLAN_GAP) → Return the Verification Report with DEFECTIVE verdict and gap evidence to the orchestrator for pipeline restart from Archon.
-- DEFECTIVE (DEPENDENCY_ISSUE) → Return the Verification Report with DEFECTIVE verdict to the orchestrator for routing based on severity:
-  - Breaking change → orchestrator routes to Archon.
-  - Misuse → orchestrator routes to Pragma.
+```
+  Dokimos emits verdict
+    |
+    +-- VERIFIED ---------> Return to Orchestrator --> Graphos (record success)
+    |                                                      |
+    |                                                      v
+    |                                                   Hermon (commit)
+    |
+    +-- LOGIC_ERROR ------> Return to Orchestrator --> Graphos (record error)
+    |                                                      |
+    |                                                      v
+    |                                                   Pragma (fix code)
+    |
+    +-- PLAN_GAP ---------> Return to Orchestrator --> Graphos (record gap)
+    |                                                      |
+    |                                                      v
+    |                                                   Archon (full replan)
+    |
+    +-- DEPENDENCY_ISSUE -> Return to Orchestrator --> Graphos (record)
+                                                           |
+                                +-- Breaking? --> Archon
+                                +-- Misuse? ----> Pragma
+```
+
+- VERIFIED → Orchestrator routes to Graphos to document success, then to Hermon.
+- DEFECTIVE (LOGIC_ERROR) → Orchestrator routes to Graphos to record the error, then to Pragma with Fix Specification.
+- DEFECTIVE (PLAN_GAP) → Orchestrator routes to Graphos to record the gap, then full pipeline restart from Archon.
+- DEFECTIVE (DEPENDENCY_ISSUE) → Orchestrator routes to Graphos to record, then based on severity: breaking → Archon, misuse → Pragma.
 - After Pragma fixes → orchestrator re-invokes Dokimos for re-testing (loop until VERIFIED).
 
 ## Test Quality Metrics
