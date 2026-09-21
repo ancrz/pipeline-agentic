@@ -30,4 +30,6 @@ Codex role files are plain Markdown without YAML frontmatter. They must strictly
 Deploy to the Codex root:
 ```bash
 cp codex/AGENTS.md ~/.codex/AGENTS.md
+mkdir -p ~/.codex/agentic-pipeline/roles/
+cp codex/roles/*.md ~/.codex/agentic-pipeline/roles/
 ```
