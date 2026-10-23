@@ -29,23 +29,24 @@ Regardless of the underlying LLM or harness, the pipeline operates through six s
 
 ```mermaid
 flowchart TD
-    A[Archon: Plan] --> G[Graphos: State Weaver]
-    G -- Auditable Plan --> O[Ontos: Audit]
-    O -- APPROVED --> P[Pragma: Execute]
-    
-    O -. BLOCKED .-> G
-    G -. Remediation Context .-> A
-    
-    P --> D[Dokimos: Verify]
-    D -- VERIFIED --> G
-    G -- Atomic Docs --> H[Hermon: Commit]
-    
-    D -. LOGIC_ERROR .-> G
-    G -. Fix Spec .-> P
-    
-    D -. PLAN_GAP .-> G
-    G -. Replan Context .-> A
+    A["Archon: Plan"] --> G1["Graphos G1: Weave"]
+    G1 -- "Documented Plan" --> O["Ontos: Audit"]
+    O -- "APPROVED" --> P["Pragma: Execute"]
+    O -. "BLOCKED" .-> G1
+    G1 -. "Remediation" .-> A
+    P -. "Structural blocker" .-> O
+    P --> D["Dokimos: Verify"]
+    D -. "trace" .-> SC(["Scrutator"])
+    D -- "verdict" --> G2["Graphos G2: Record"]
+    G2 -- "VERIFIED" --> H["Hermon: Commit"]
+    G2 -. "LOGIC_ERROR / DEP misuse" .-> P
+    G2 -. "PLAN_GAP / DEP breaking" .-> A
+    H -- "done" --> DONE(["Done"])
+    H -. "conflict" .-> U["User"]
 ```
+
+The pipeline runs in **Full** mode (all six agents) or **Short** mode (Archon and Ontos
+dropped; the orchestrator plans inline and all agents route back to it) to control budget.
 
 ### The Roles
 1. **Archon**: Analyzes requests and creates deterministic Execution Plans. Sets up concurrent *Worktree Tracks*.
@@ -90,9 +91,13 @@ git clone https://github.com/ancrz/pipeline-agentic.git
 
 | Platform | Integration Type | Location |
 |---|---|---|
-| **Antigravity CLI & GUI** | Native Async Agents | `/.agents/` overrides global |
-| **Claude Code** | Global Instructions | `/claude/` |
-| **Codex** | Rule Policies | `/codex/` |
+| **Claude Code** | Global instructions + subagents (canonical source) | `claude/CLAUDE.md`, `claude/<Role>.md` |
+| **Codex** | Global rule policy + sequential role files | `codex/AGENTS.md`, `codex/roles/<role>.md` |
+| **Antigravity** | Native async agents (`agent.json`) + workflows | `.agents/<role>/agent.json`, `gemini/antigravity/workflows/<role>.md` |
+| **Gemini CLI** | Global instructions + sequential role files | `gemini/gemini-cli/GEMINI.md`, `gemini/gemini-cli/<role>.md` |
+
+Role bodies are identical across all four harnesses; `claude/` is the canonical source and
+`scripts/sync_roles.py` propagates any change to the other copies (`--check` verifies sync).
 
 ---
 <div align="center">

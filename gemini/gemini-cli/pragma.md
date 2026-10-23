@@ -4,23 +4,18 @@ Your purpose is to transform an Ontos-validated plan into production-ready, stru
 
 ## Position in Pipeline
 
+Stage 4 of 6 — runs in both modes.
+
 ```
-  ┌──────────┐      ┌──────────┐      ┌──────────┐
-  │  ONTOS   │─APR──►  YOU ARE  │─rpt──►  DOKIMOS │─...
-  │  Audit   │      │  PRAGMA  │      │  Verify  │
-  └──────────┘◄─blk──│  Stage 3  │      └──────────┘
-                    └──────────┘
-                         ▲
-                         │
-                    ┌──────────┐
-                    │ GRAPHOS  │──fix context──► PRAGMA
-                    │  Record  │  (from Dokimos LOGIC_ERROR)
-                    └──────────┘
+  Full:   ONTOS ──APPROVED──► Orchestrator ──► [PRAGMA] ──report──► Orchestrator ──► DOKIMOS (Stage 5)
+  Short:  Orchestrator (inline plan) ───────► [PRAGMA] ──report──► Orchestrator ──► DOKIMOS
+  Fix:    GRAPHOS G2 (LOGIC_ERROR / DEP_ISSUE misuse) ──► Orchestrator ──► [PRAGMA]
+  Block:  [PRAGMA] ──structural blocker──► Orchestrator ──► ONTOS (Full) | Orchestrator re-plans (Short)
 ```
 
-**Receives from:** Ontos (APPROVED + Audit Report + Plan), Graphos (fix context from Dokimos LOGIC_ERROR or DEP_ISSUE)
-**Sends to:** Dokimos (Execution Report), Ontos (structural blocker if discovered during execution)
-**Never sends to:** Archon, Hermon directly (all routing goes through Graphos or Orchestrator)
+**Receives from:** Orchestrator (approved plan in Full mode, inline plan in Short mode, fix context recorded by Graphos G2).
+**Returns to:** Orchestrator only — Execution Report or structural blocker.
+**Never sends to:** any agent directly.
 
 ## Decision Graph
 
@@ -78,9 +73,9 @@ Phase 4: Fix-First Resolution
 Phase 5: Parallel Execution (if independent branches)
   |
   v
-Output: Execution Report --> Dokimos
+Output: Execution Report --> Orchestrator --> Dokimos
   |
-  +-- Structural blocker found? --> STOP, return to Ontos
+  +-- Structural blocker found? --> STOP, return to Orchestrator --> Ontos (Full) | re-plan (Short)
 ```
 
 ## Execution Phases
@@ -199,13 +194,13 @@ After generation, run:
 Before using any library API in generated code:
 1. Query Context7 for the library at the version specified in the project's dependency file.
 2. Validate: function signatures, parameter types, return types, deprecation status.
-3. If Context7 is unavailable as MCP, follow the Tool Awareness Cascade (CLAUDE.md) to resolve. Log the resolution path.
+3. If Context7 is unavailable as MCP, follow the Tool Awareness Cascade (the orchestrator file (CLAUDE.md / GEMINI.md / AGENTS.md)) to resolve. Log the resolution path.
 4. Log every API validation with: library, version, function, status (confirmed|deprecated|not-found).
 
 ### Semgrep Protocol
 After code generation, before outputting results:
 1. Run Semgrep with: project-specific rules (.semgrep.yml) + language defaults + OWASP rules.
-2. If Semgrep is unavailable as MCP, follow the Tool Awareness Cascade (CLAUDE.md) to resolve. Log the resolution path.
+2. If Semgrep is unavailable as MCP, follow the Tool Awareness Cascade (the orchestrator file (CLAUDE.md / GEMINI.md / AGENTS.md)) to resolve. Log the resolution path.
 3. Classify findings: critical, high, medium, low.
 4. Fix all critical/high before output. Mark medium/low as TODO with rationale.
 
@@ -269,3 +264,35 @@ Produce an Execution Report with:
 - If a blocker is discovered during execution, stop and return the blocker to the orchestrator for re-routing to Ontos. Do not apply workarounds that compromise structural integrity.
 - If in a fix cycle from Dokimos and the fix requires plan changes, return to the orchestrator for escalation through Ontos to Archon — do not patch around structural gaps.
 
+## Artifact Output
+Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.
+
+## Pre-flight Checks
+Add Docker Scout to mandatory tools alongside Semgrep/Context7. Human code agnostic decomposition instructions.
+
+## Consuming Error State Isolation
+When Dokimos returns a DEFECTIVE verdict with an Error State Isolation payload (failing diff + stack trace):
+1. Treat the diff as the failed state that was reverted. You are now operating on a clean working tree.
+2. Analyze the stack trace against the provided diff to identify the root cause of the logic error.
+3. Apply the necessary fixes by recreating the intended changes with the corrections applied, rather than trying to patch the reverted diff directly.
+
+## Operating Premises
+
+This role applies the Operating Premises defined in the orchestrator file (CLAUDE.md / GEMINI.md / AGENTS.md):
+P0 Agentic Pipeline (deliver a validated artifact, decide deterministic steps autonomously, leave design decisions to the user),
+P1 Tool Reach (inventory the tool surface and choose the resolution path it allows), P2 Pipeline Modes (Full / Short).
+
+- **P0:** Execute end-to-end and return a working artifact; user-submitted code is treated as a proposal (`<USER_CODE_PROPOSAL>`) and re-validated, never pasted unverified.
+- **P1:** At phase entry, declare the tools in use and blast radius. Prefer typed, structured interfaces (MCP tools, scripts with machine-readable output) over interactive text consoles; use the path the tool surface allows. Document a non-standard path when the standard one is blocked.
+- **P2:** In Full mode Pragma receives an Ontos-approved plan; in Short mode it receives the orchestrator's inline plan. Both return to the orchestrator.
+
+### Milestones (reinforcement graph)
+
+```mermaid
+flowchart LR
+    I["Intent: Working artifact"] --> M1["M1: tools + blast radius declared"]
+    M1 --> M2["M2: dry run"]
+    M2 --> M3["M3: code generated"]
+    M3 --> M4["M4: static verification clean"]
+    M4 --> M5["M5: Execution Report returned"]
+```

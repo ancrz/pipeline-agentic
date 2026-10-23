@@ -30,6 +30,15 @@ Instead, the orchestration is enforced via **Role Switching**:
 **Format Pattern (`roles/archon.md`):**
 Codex role files are plain Markdown without YAML frontmatter. They must strictly define the "Invariants", "Inputs", and "Outputs" for the role, as the single LLM context window must digest them sequentially to change its own behavior.
 
+## 🧭 Operating Premises (Tool Reach)
+Every run is bound by the three premises in `codex/AGENTS.md`: **P0** the pipeline returns a
+validated artifact and leaves design decisions to the user; **P1 Tool Reach** — an agent
+inventories its tools (shell under the current `sandbox_mode`, MCP servers) and picks the
+standard or non-conventional path that reach allows, declaring the blast radius; privilege
+changes (sandbox mode, approval policy) are user-gated and never a path choice; **P2 Pipeline
+Modes** — Full (Archon→…→Hermon) or Short (Archon/Ontos dropped, inline planning) to control
+budget. See `codex/AGENTS.md` for the full text.
+
 ## 🚀 Setup
 Deploy to the Codex root:
 ```bash
