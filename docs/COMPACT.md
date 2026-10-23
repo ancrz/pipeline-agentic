@@ -16,6 +16,4 @@ Drop:
 - Tool output already summarized; superseded plan drafts; resolved errors.
 - Full file contents already written to disk (keep paths, not bodies).
 
-Current pending (2026-10-23): commit the branch `fix/pipeline-coherence-modes`; then apply the
-same corrections to Antigravity and ChatGPT-Codex instances if any harness-specific drift
-remains; no push without user authorization.
+Current pending (2026-10-23): Global harness injection and Codex standalone parity verified (Dokimos 44/44 PASS). Hermon to create atomic commit for `codex/AGENTS.md`, `codex/README.md`, `scripts/agent_inject_harnesses.py`, and pipeline documentation under `docs/pipeline/`; no push without user authorization.

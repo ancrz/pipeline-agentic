@@ -11,7 +11,7 @@ flowchart LR
     M2 --> M3["M3: 3 orchestrators corrected ✅"]
     M3 --> M4["M4: READMEs + diagrams fixed ✅"]
     M4 --> M5["M5: mermaid/json validated ✅ (Dokimos)"]
-    M5 --> M6["M6: committed 🔄 (Hermon)"]
+    M5 --> M6["M6: committed ✅ (Hermon)"]
 ```
 
 ## Intent: Tool-Reach premise (PRIORITY P1)
@@ -43,6 +43,18 @@ flowchart LR
     M1 --> M2["M2: README reinforcement graphs ✅"]
     M2 --> M3["M3: docs/ PROJECT + MILESTONES + COMPACT ✅"]
     M3 --> M4["M4: local git + chain artifacts ✅"]
+```
+
+## Intent: Universal Global Harness Injection & Parity (PLAN-TOPOS-CODEX-PARITY-20261023)
+
+```mermaid
+flowchart LR
+    I["Intent: Global Harness Parity"] --> M1["M1: 28 target files backed up ✅"]
+    M1 --> M2["M2: codex/AGENTS.md expanded to 754 lines ✅"]
+    M2 --> M3["M3: symlink ~/.codex/roles created & documented ✅"]
+    M3 --> M4["M4: runbook agent_inject_harnesses.py executed ✅"]
+    M4 --> M5["M5: 44/44 tests verified (Dokimos) ✅"]
+    M5 --> M6["M6: atomic commit 🔄 (Hermon)"]
 ```
 
 ## Per-agent milestone summary
