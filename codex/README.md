@@ -45,4 +45,5 @@ Deploy to the Codex root:
 cp codex/AGENTS.md ~/.codex/AGENTS.md
 mkdir -p ~/.codex/agentic-pipeline/roles/
 cp codex/roles/*.md ~/.codex/agentic-pipeline/roles/
+ln -sfn ~/.codex/agentic-pipeline/roles ~/.codex/roles
 ```
