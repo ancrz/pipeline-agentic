@@ -774,11 +774,16 @@ The canonical source for all pipeline files is the repository
 (`pipeline-agentic/claude/`). Role bodies are propagated to the Codex, Gemini-CLI and
 Antigravity copies by `scripts/sync_roles.py` (run `--check` to verify they are in sync).
 
-To deploy to active Claude Code configuration:
-- `cp claude/CLAUDE.md ~/.claude/CLAUDE.md`
-- `cp claude/{Archon,Graphos,Ontos,Pragma,Dokimos,Hermon}.md ~/.claude/agents/`
+Deploy with `./sync.sh` from the repository root (it propagates role bodies, validates the
+manifests, detects installed harnesses and writes only what changed):
+- `./sync.sh` / `./sync.sh global` — user-level homes (`~/.claude`, `~/.codex`, `~/.gemini`),
+  with backup, verification and automatic rollback.
+- `./sync.sh local --target <project>` — project-level overrides (`.claude/`, `.codex/`,
+  `.gemini/`, `.agents/`); project customizations are skipped unless `--force`.
+- `--check` (CI-friendly, exit 1 on drift), `--dry-run`, `--harness claude,codex,gemini`,
+  `--rollback <backup-dir>`.
 
-Sync is manual. The repository version is authoritative.
+Sync is on demand. The repository version is authoritative.
 If ~/.claude/ files diverge, the repo version wins.
 
 ---

@@ -69,7 +69,9 @@ or Short to control budget.
 > pipeline does not add it speculatively.
 
 ## 🚀 Setup
-The `.agents` folder works natively. To deploy the global fallback:
+From the repository root: `./sync.sh global --harness gemini` (installs `~/.gemini/`, the `agy`
+copy and the global Antigravity agents) or `./sync.sh local --target <project> --harness gemini`
+(`<project>/.gemini/` and `<project>/.agents/`). Manual equivalent for the global fallback:
 ```bash
 cp gemini/gemini-cli/GEMINI.md ~/.gemini/GEMINI.md
 ```

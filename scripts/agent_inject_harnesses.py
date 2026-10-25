@@ -8,12 +8,16 @@ Ontos Status: APPROVED (0 blockers, 0 co-dependencies)
 
 Environment Variables:
     BACKUP_DIR: Optional path for backup directory.
-                Default: /home/ancruz/.gemini/backups/pre-inject-<YYYYMMDD_HHMMSS>
+                Default: ~/.gemini/backups/pre-inject-<YYYYMMDD_HHMMSS>
     CANONICAL_REPO: Optional path to repository root.
-                Default: /home/ancruz/Documents/workspaces/pipeline-agentic
+                Default: the repository containing this script
 
 Usage:
     python3 scripts/agent_inject_harnesses.py [--dry-run] [--verify-only] [--rollback <backup_dir>]
+                                              [--only claude,codex,gemini]
+
+    Normally invoked through ./sync.sh (global mode), which adds harness auto-detection
+    and skips the run when every target is already in sync.
 
 Exceptions & Error Handling:
     - If any canonical source file is missing, aborts immediately before modifying targets.
@@ -50,9 +54,10 @@ def split_frontmatter(text: str):
     return "", text
 
 def build_manifest(repo: Path):
-    claude_home = Path("/home/ancruz/.claude")
-    codex_home = Path("/home/ancruz/.codex")
-    gemini_home = Path("/home/ancruz/.gemini")
+    home = Path.home()
+    claude_home = home / ".claude"
+    codex_home = home / ".codex"
+    gemini_home = home / ".gemini"
 
     # 22 direct copy tasks: (source, target, backup_rel_path)
     direct_copies = [
@@ -80,13 +85,22 @@ def build_manifest(repo: Path):
     ]
 
     protected_patterns = [
-        "/home/ancruz/.claude/agent-memory/*/MEMORY.md",
-        "/home/ancruz/.claude/settings.json",
-        "/home/ancruz/.gemini/settings.json",
-        "/home/ancruz/.gemini/config/mcp_config.json",
+        str(claude_home / "agent-memory" / "*" / "MEMORY.md"),
+        str(claude_home / "settings.json"),
+        str(gemini_home / "settings.json"),
+        str(gemini_home / "config" / "mcp_config.json"),
     ]
 
     return direct_copies, composite_copies, symlinks, protected_patterns
+
+def filter_manifest(only, direct_copies, composite_copies, symlinks):
+    """Keep only the tasks of the selected harnesses (first path part of the backup rel path)."""
+    if not only:
+        return direct_copies, composite_copies, symlinks
+    direct = [c for c in direct_copies if c[2].parts[0] in only]
+    composite = composite_copies if "gemini" in only else []
+    links = symlinks if "codex" in only else []
+    return direct, composite, links
 
 def execute_backup(backup_dir: Path, direct_copies, composite_copies):
     print(f"[*] Creating backup directory: {backup_dir}")
@@ -144,6 +158,9 @@ def execute_injection(direct_copies, composite_copies, symlinks, dry_run=False):
 
     # Composite copies (6 files)
     for role, body_src, dst, _ in composite_copies:
+        if not dst.exists():
+            print(f"  SKIP (not installed, no frontmatter to preserve): {dst}")
+            continue
         print(f"  COMPOSITE: frontmatter({dst}) + {body_src} -> {dst}")
         if not dry_run:
             current_target_text = dst.read_text(encoding="utf-8")
@@ -170,6 +187,9 @@ def verify_static_gate(direct_copies, composite_copies, symlinks, protected_base
     # 1. Verify direct copies against canonical source
     print(f"  [1/4] Verifying {len(direct_copies)} direct copies match canonical source SHA-256...")
     for src, dst, _ in direct_copies:
+        if not dst.exists():
+            errors.append(f"Missing target: {dst}")
+            continue
         src_sha = sha256_file(src)
         dst_sha = sha256_file(dst)
         if src_sha != dst_sha:
@@ -180,6 +200,9 @@ def verify_static_gate(direct_copies, composite_copies, symlinks, protected_base
     # 2. Verify composite copies
     print(f"  [2/4] Verifying {len(composite_copies)} composite files frontmatter preservation and body integrity...")
     for role, body_src, dst, _ in composite_copies:
+        if not dst.exists():
+            print(f"    SKIPPED (not installed): {dst}")
+            continue
         canonical_body = body_src.read_text(encoding="utf-8")
         dst_text = dst.read_text(encoding="utf-8")
         fm, rest = split_frontmatter(dst_text)
@@ -244,10 +267,18 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Simulate execution without modifying files")
     parser.add_argument("--verify-only", action="store_true", help="Only verify static integrity without copying")
     parser.add_argument("--rollback", type=str, help="Restore files from specified backup directory")
+    parser.add_argument("--only", type=str, default="",
+                        help="Comma-separated harnesses to include: claude,codex,gemini (default: all)")
     args = parser.parse_args()
+    only = {h.strip() for h in args.only.split(",") if h.strip()}
+    unknown = only - {"claude", "codex", "gemini"}
+    if unknown:
+        parser.error(f"unknown harness(es) in --only: {', '.join(sorted(unknown))}")
 
-    repo_path = Path(os.getenv("CANONICAL_REPO", "/home/ancruz/Documents/workspaces/pipeline-agentic")).resolve()
+    default_repo = Path(__file__).resolve().parent.parent
+    repo_path = Path(os.getenv("CANONICAL_REPO", str(default_repo))).resolve()
     direct_copies, composite_copies, symlinks, protected_patterns = build_manifest(repo_path)
+    direct_copies, composite_copies, symlinks = filter_manifest(only, direct_copies, composite_copies, symlinks)
 
     if args.rollback:
         rollback(Path(args.rollback), direct_copies, composite_copies)
@@ -262,7 +293,7 @@ def main():
         return 0 if ok else 1
 
     # Backup gate
-    default_bkp = f"/home/ancruz/.gemini/backups/pre-inject-{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    default_bkp = str(Path.home() / ".gemini" / "backups" / f"pre-inject-{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
     backup_dir = Path(os.getenv("BACKUP_DIR", default_bkp)).resolve()
 
     if not args.dry_run:
@@ -289,7 +320,10 @@ def main():
             return 1
 
     print("\n==========================================")
-    print(f"Execution successful! Backup saved at:\n{backup_dir}")
+    if args.dry_run:
+        print("Dry run complete: no files were written.")
+    else:
+        print(f"Execution successful! Backup saved at:\n{backup_dir}")
     print("==========================================")
     return 0
 

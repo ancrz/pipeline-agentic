@@ -88,6 +88,23 @@ This repository serves as the **Canonical Source of Truth** for the Topos V2 Age
 git clone https://github.com/ancrz/pipeline-agentic.git
 ```
 
+## 🔄 Sync (all harnesses)
+
+`./sync.sh` at the repository root installs the pipeline everywhere it applies:
+
+| Command | Effect |
+|---|---|
+| `./sync.sh` | **auto**: global from this repo; local when run inside another git project or with `--target` |
+| `./sync.sh global` | user-level homes `~/.claude`, `~/.codex`, `~/.gemini` (backup + verification + auto-rollback) |
+| `./sync.sh local --target <dir>` | project overrides `.claude/`, `.codex/`, `.gemini/`, `.agents/` (root `CLAUDE.md`/`AGENTS.md`/`GEMINI.md` untouched) |
+| `--check` / `--dry-run` | report drift without writing (`--check` exits 1 on drift) |
+| `--harness claude,codex,gemini` | limit to some harnesses (default: those detected as installed) |
+| `--force` | local: overwrite files the project customized (backed up first) |
+| `--rollback <dir>` | restore a previous backup |
+
+Before deploying it propagates role bodies from `claude/` (`scripts/sync_roles.py`), refuses
+invalid `agent.json`, and writes only files that changed.
+
 ## ⚙️ Supported Orchestrators
 
 | Platform | Integration Type | Location |

@@ -55,7 +55,8 @@ Modes** — Full (Archon→…→Hermon) or Short (Archon/Ontos dropped, inline 
 budget. See `codex/AGENTS.md` for the full text.
 
 ## 🚀 Setup
-Deploy to the Codex root:
+From the repository root: `./sync.sh global --harness codex` (or
+`./sync.sh local --target <project> --harness codex` for `<project>/.codex/`). Manual equivalent:
 ```bash
 cp codex/AGENTS.md ~/.codex/AGENTS.md
 mkdir -p ~/.codex/agentic-pipeline/roles/

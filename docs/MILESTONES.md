@@ -70,6 +70,18 @@ flowchart LR
     M6 --> M7["M7: local commit + deploy ✅ (Hermon)"]
 ```
 
+## Intent: Smart sync entry point (2026-10-25)
+
+```mermaid
+flowchart LR
+    I["Intent: One command to sync every harness"] --> M1["M1: merged branches pruned ✅"]
+    M1 --> M2["M2: runbook --only + portable paths ✅"]
+    M2 --> M3["M3: sync.sh auto / global / local ✅"]
+    M3 --> M4["M4: ownership lock, skip customizations, rollback ✅"]
+    M4 --> M5["M5: 10 scenarios + shellcheck ✅ (Dokimos)"]
+    M5 --> M6["M6: committed 🔄 (Hermon)"]
+```
+
 ## Per-agent milestone summary
 
 | Agent | Role milestones (reinforcement graph in each role body) |

@@ -53,8 +53,16 @@ for the authoritative diagram.
 - Harness compaction knobs (`model_auto_compact_token_limit`, `model.compressionThreshold`,
   Antigravity ~135k auto) were verified against vendor sources in 2026-10 and may change.
 
+## Sync
+
+`./sync.sh` (repo root) is the single entry point: `auto` (default) resolves to `global`
+(`~/.claude`, `~/.codex`, `~/.gemini`, via `scripts/agent_inject_harnesses.py`) or `local`
+(project overrides `.claude/`, `.codex/`, `.gemini/`, `.agents/`). It propagates role bodies,
+validates `agent.json`, syncs only detected harnesses and only changed files.
+
 ## Verify
 
 No build/test runner (prompt/config repo). Integrity checks:
 - `python3 scripts/sync_roles.py --check` — role bodies in sync with `claude/`.
 - `python3 -m json.tool .agents/*/agent.json` — agent manifests valid.
+- `./sync.sh --check` — installed harness files match the repository (exit 1 on drift).

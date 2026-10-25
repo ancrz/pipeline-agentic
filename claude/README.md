@@ -56,8 +56,10 @@ If an agent lacks this YAML block, it is effectively invisible to the routing ta
 Only `name` and `description` are required; the other fields are defaults. Agent files do **not** schedule the pipeline: the chat/orchestrator decides on demand which agent to delegate to next (Claude Code matches the request against each `description`, and the user can name or `@`-mention an agent). That is why each `description` states its stage and when it applies (Full vs Short mode).
 
 ## 🚀 Setup
-Deploy the master rules to your global configuration:
+From the repository root:
 ```bash
-cp claude/CLAUDE.md ~/.claude/CLAUDE.md
-cp claude/{Archon,Graphos,Ontos,Pragma,Dokimos,Hermon}.md ~/.claude/agents/
+./sync.sh global --harness claude                 # ~/.claude/CLAUDE.md + ~/.claude/agents/
+./sync.sh local --target <project> --harness claude   # <project>/.claude/ overrides
 ```
+Manual equivalent: `cp claude/CLAUDE.md ~/.claude/CLAUDE.md` and
+`cp claude/{Archon,Graphos,Ontos,Pragma,Dokimos,Hermon}.md ~/.claude/agents/`.

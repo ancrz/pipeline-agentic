@@ -16,9 +16,7 @@ Drop:
 - Tool output already summarized; superseded plan drafts; resolved errors.
 - Full file contents already written to disk (keep paths, not bodies).
 
-Current pending (2026-10-24): cross-harness parity remediated (CLAUDE.md / AGENTS.md / GEMINI.md
-share Flow Variants with Graphos, Rules 1-12, Scrutator, Error Recovery, Abstract Study,
-cascade privilege clause, compaction for 4 harnesses). Claude Code delegation documented as
-on-demand by the orchestrator (`description`-driven), `isolation: "worktree"`, nested
-sub-agents allowed. Open: Antigravity `enable_shell_tools` still unverified; no push without
-user authorization.
+Current pending (2026-10-25): branch `feat/smart-sync` adds `./sync.sh` (auto/global/local,
+--check/--dry-run/--harness/--force/--rollback) and runbook `--only` + portable paths. Only
+`main` exists on origin (merged branches pruned). Open: push/merge of `feat/smart-sync` awaits
+user authorization; Antigravity `enable_shell_tools` unverified.
