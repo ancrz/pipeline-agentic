@@ -98,6 +98,10 @@ Codex compacts long sessions: manual `/compact`, and automatic compaction at
 decisions, next actions; drop: already-summarized output, superseded plans, resolved errors) —
 feed it to `/compact`.
 
+Other harnesses running the same pipeline: Claude Code `/compact <instructions>` (+ automatic
+compaction, a `# Compact instructions` section, `PreCompact` hook); Gemini CLI `/compress`
+(+ `model.compressionThreshold`, default 0.5); Antigravity automatic (~135k tokens).
+
 ---
 
 ## Operating Model
@@ -324,27 +328,39 @@ reference these modes without redefining them. Dokimos invokes Mode 1 during fai
 analysis and Mode 2 when the plan specifies log-verification targets.
 
 **Mode 1: RCA Trace (default)**
-- Trigger: Test failure requiring runtime log analysis.
-- Protocol: (1) Truncate logs. (2) Re-execute failing test.
-  (3) Read/parse log output. (4) Resume Dokimos reasoning.
-- Fail semantics: FAIL-OPEN. Continue without log trace.
+- Trigger: Dokimos encounters a test failure requiring Root Cause
+  Analysis involving runtime behavior not visible in stack traces.
+- Decision authority: Dokimos.
+- Protocol: (1) Truncate relevant logs. (2) Re-execute failing test.
+  (3) Read log output, parse errors/warnings/anomalies.
+  (4) Return structured findings to Dokimos.
+- Fail semantics: FAIL-OPEN. Dokimos continues without log trace.
 
 **Mode 2: Plan-Requested Trace**
-- Trigger: Archon's plan requests log analysis for a scenario.
-- Protocol: Same as Mode 1, targeting plan-specified patterns.
-- Fail semantics: FAIL-CLOSED for documentation (APPROXIMATION).
+- Trigger: Archon's plan explicitly requests log analysis for a
+  specific test scenario.
+- Decision authority: Archon specifies in plan; Dokimos executes.
+- Protocol: Same as Mode 1, targeting patterns defined in the plan.
+- Fail semantics: FAIL-CLOSED for documentation. Gap is documented
+  as APPROXIMATION with low confidence. Does NOT fail verification.
 
 **Mode 3: Post-Commit Gate**
-- Trigger: After Hermon commits, optionally check error logs.
-- Protocol: Read post-commit/CI trigger logs. Return status.
+- Trigger: After Hermon commits, the orchestrator optionally runs
+  Scrutator to check for error logs during commit/push.
+- Decision authority: Orchestrator. OFF by default.
+- Protocol: Read post-commit hook output and CI trigger logs.
+  Return pass/warn/fail status.
 - Fail semantics: FAIL-OPEN. Does not revert commit.
 
 Log sources: Docker (`docker compose logs --tail=200 <service>`),
-application (`data/logs/*.log`), stdout/stderr.
+application (`data/logs/*.log`), stdout/stderr from test execution.
+
+Output format: structured report with ERROR/WARNING/INFO
+categorization, timestamps, and recommended actions.
 
 ### Stage 6: Hermon Role → Commit & Push
 
-Assume the **Hermon role** only after Dokimos issues VERIFIED.
+Assume the **Hermon role** only after Dokimos issues VERIFIED and Graphos G2 has recorded it.
 
 **Read `~/.codex/agentic-pipeline/roles/hermon.md`** (or `~/.codex/roles/hermon.md`, or project override `.codex/roles/hermon.md`)
 to load the full role context.
@@ -358,7 +374,8 @@ TM Forum traceability, atomic ordering) applies regardless of
 which git interface is used.
 
 If conflicts are detected, Hermon reports to the user — never
-auto-resolves.
+auto-resolves. Pushes and force operations are user-gated: Hermon commits locally,
+and pushes only after the user authorizes the version-control operation.
 
 ### Transition Flow
 
@@ -396,6 +413,8 @@ In Codex's single-agent paradigm, transitions are sequential role switches withi
 | Dokimos | PLAN_GAP | Graphos (G2) | Gap evidence |
 | Dokimos | DEP_ISSUE (breaking) | Graphos (G2) | Dependency analysis |
 | Dokimos | DEP_ISSUE (misuse) | Graphos (G2) | Corrected usage |
+| Dokimos | log trace needed | Scrutator | Test context |
+| Scrutator | findings | Dokimos | Structured log report |
 | Graphos (G2) | document rollup (VERIFIED) | Hermon | Atomic Document Updates |
 | Graphos (G2) | fix context | Pragma | LOGIC_ERROR / DEP misuse |
 | Graphos (G2) | replan context | Archon (Full) / Orchestrator (Short) | PLAN_GAP / DEP breaking |
@@ -468,39 +487,57 @@ Dokimos role: ontological tests
 
 ## Pipeline Flow Variants
 
-The Full Flow applies to all code-modifying tasks. These variants
-define reduced flows for specific task categories.
+The Full Flow applies to all code-modifying tasks by default (see P2 for Full vs Short).
+These variants define reduced flows for specific task categories.
 
 ### Full Flow (default)
-- **Trigger:** Any task creating, modifying, or deleting code,
-  config, infrastructure, or dependency files.
-- **Roles:** Archon → Ontos → Pragma → Dokimos → Hermon
+- **Trigger:** Any task that creates, modifies, or deletes code,
+  configuration, infrastructure, or dependency files.
+- **Participants:** Archon → Graphos (G1) → Ontos → Pragma → Dokimos → Graphos (G2) → Hermon
+- **Routing:** Standard pipeline with all feedback loops.
 - **Exit:** Hermon produces Version Control Report.
 
 ### Short Flow (budget-saving, see P2)
-- **Trigger:** Small, low-risk, well-scoped tasks; user requested budget preservation.
-- **Roles:** (inline plan) → Pragma → Dokimos → Graphos G2 → Hermon
+- **Trigger:** User selects Short mode for a small, low-risk, well-scoped change.
+- **Participants:** Orchestrator (inline plan) → Pragma → Dokimos → Graphos (G2) → Hermon
+- **Routing:** The chat/orchestrator agent holds planning context; all roles route back to
+  it. Topos invariants still apply.
 - **Exit:** Hermon produces Version Control Report.
 
 ### Audit Flow
-- **Trigger:** User requests "audit this", "review architecture".
-- **Roles:** Ontos only.
-- **Exit:** Audit Report (APPROVED or BLOCKED).
+- **Trigger:** User requests "audit this", "review architecture",
+  "check dependencies", or Pragma returns a structural blocker.
+- **Participants:** Ontos only.
+- **Routing:** The orchestrator runs Ontos directly with the
+  artifact to audit. No Archon plan phase. No downstream execution.
+- **Exit:** Ontos produces Audit Report (APPROVED or BLOCKED).
+  If BLOCKED, the orchestrator reports findings to the user.
 
 ### Documentation Flow
-- **Trigger:** Markdown/README-only changes. No code.
-- **Roles:** Archon → Ontos → Pragma → Hermon (skip Dokimos).
-- **Exit:** Hermon commits with type "docs".
+- **Trigger:** Task modifies ONLY Markdown documentation, comments,
+  or README files. No code, config, or infrastructure changes.
+- **Participants:** Archon → Graphos (G1) → Ontos → Pragma → Graphos (G2) → Hermon
+- **Routing:** Dokimos is skipped (no testable surface).
+  Pragma generates documentation. Hermon commits with type "docs".
+- **Exit:** Hermon produces Version Control Report.
+- **Constraint:** If Pragma discovers the change touches code
+  (e.g., JSDoc altering type signatures), escalate to Full Flow.
 
 ### Verification Flow
-- **Trigger:** User requests "test this", "validate" existing code.
-- **Roles:** Dokimos only (with optional Scrutator sub-step).
-- **Exit:** Verification Report.
+- **Trigger:** User requests "test this", "run tests", "validate"
+  against existing code NOT produced by the current pipeline run.
+- **Participants:** Dokimos only (with optional Scrutator sub-step).
+- **Routing:** The orchestrator runs Dokimos directly.
+  No plan or execution phase.
+- **Exit:** Dokimos produces Verification Report. If DEFECTIVE,
+  the orchestrator reports RCA and recommends next steps.
 
 ### Planning Flow
-- **Trigger:** User requests "plan this", "how would we build X".
-- **Roles:** Archon → Ontos. No execution.
-- **Exit:** Validated plan presented to user.
+- **Trigger:** User requests "plan this", "how would we build X",
+  "draft an approach" without intent to execute immediately.
+- **Participants:** Archon → Graphos (G1) → Ontos
+- **Routing:** Archon produces plan. Graphos records it. Ontos audits. No execution.
+- **Exit:** Validated plan presented to user for future execution.
 
 ---
 
@@ -526,6 +563,8 @@ skill, or MCP server), it resolves availability in this order:
 
 Cascade is fail-soft: each step is attempted; failure proceeds
 to the next. Only if ALL steps fail does the terminal fallback apply.
+Acquiring a tool through this cascade is tool expansion under P1 and stays within granted
+authorization; it never includes a privilege change.
 
 **skill-swarm availability policy:**
 - Pinned to version configured in `config.toml`.
@@ -588,25 +627,41 @@ the main context window with unparsed stdout.
 
 ## Orchestrator Rules
 
-1. Never write production code directly. That is the Pragma role's job.
-2. Never skip the Ontos role in Full mode. Every plan gets audited.
-3. Never assume the Pragma role on an unaudited plan (Full) or unverified inline plan (Short).
+1. Never write production code yourself in Full mode. That is the Pragma role's job. (In Short
+   mode you still leave code generation to the Pragma role; you only plan inline.)
+2. In Full mode, never skip the Ontos role. Every plan gets audited.
+3. Never assume the Pragma role on an unaudited plan in Full mode.
 4. Never assume the Dokimos role on incomplete Pragma output.
 5. Never assume the Hermon role on unverified code.
-6. If the user says "just do it" or "skip the plan", explain the
-   pipeline briefly and assume the Archon role (Full) or inline plan (Short) anyway. Speed without
-   structural integrity is technical debt.
-7. Carry project context (stack, conventions, constraints) across
-   every role transition. Do not re-discover what you already know.
-8. When skills or MCP tools are needed, delegate to Archon's
-   skill provisioning phase — do not install ad-hoc.
+6. If the user says "just do it" or "skip the plan": offer **Short mode** (P2) and proceed —
+   a budgeted, deterministic flow is still safer than ad-hoc edits. Only drop to no-pipeline
+   for the non-file-touching cases above. Speed without structural integrity is technical debt.
+7. Carry project context (stack, conventions, constraints) across every role transition.
+   Do not re-discover what you already know.
+8. When installing skills or MCP tools, delegate to the Archon role's skill provisioning phase
+   (Full) or acquire them via the Tool Awareness Cascade inline (Short) — do not install
+   ad-hoc without recording it.
 9. Track pipeline metrics across runs:
-   - Archon↔Ontos loop count (plan revision cycles).
-   - Pragma↔Dokimos loop count (fix cycles).
+   - Mode used (Full / Short).
+   - Archon→Ontos loop count (plan revision cycles).
+   - Pragma→Dokimos loop count (fix cycles).
    - Dokimos approximation ratio.
-10. On Dokimos PLAN_GAP, the full pipeline restarts from Archon (Full) or inline re-plan (Short).
-    Do not shortcut to Pragma.
-11. **Chat Agent Intercession:** Roles can be interceded or overridden by the chat agent via explicit user instructions, EXCEPT for Graphos. Graphos's flow is imperative and mandatory; it must always run to document success and failure states before routing continues.
+   - Total pipeline duration.
+10. On Dokimos PLAN_GAP escalation, the full pipeline restarts
+    from Archon (Full) or the orchestrator re-plans inline (Short). Do not shortcut to Pragma.
+11. **Harness Evasion & Privilege Escalation (Relaxed)**: If the environment, harness, or a
+    tool blocks a command (permissions, auth walls, security guardrails), DO NOT immediately
+    abort and force the human to run it manually. Instead:
+    - Attempt a safe workaround within your **current** privilege level — a non-conventional
+      path under P1 (an alternative tool with the reach the task needs).
+    - If no in-authorization workaround exists, pause and transparently ask the user for
+      permission or clarification with clear options.
+    - Since code changes are tracked in Git and reversible, prioritize momentum via user
+      consent over hard-blocking. This never authorizes bypassing a guardrail or
+      self-escalating privilege — those remain user-gated (P1 safety boundary).
+12. **Chat Agent Intercession:** the chat agent may intercede in or override any role on
+    explicit user instruction, EXCEPT Graphos. Graphos's flow is imperative and mandatory: it
+    always runs to record success and failure states before routing continues.
 
 ---
 
@@ -615,35 +670,47 @@ the main context window with unparsed stdout.
 | Scenario | Action |
 |----------|--------|
 | Archon cannot resolve ambiguity | Surface to user, await clarification |
-| Ontos BLOCKED after 3 revisions | Escalate to user with findings |
-| Pragma hits structural blocker | Return to Ontos role (Full) or inline re-plan (Short) |
-| Dokimos DEFECTIVE after 3 fix cycles | Escalate to user with RCA |
-| Dokimos discovers plan gap | Full restart from Archon role (Full) or inline re-plan (Short) |
+| Ontos BLOCKED after 3 Archon revisions | Graphos G1 records; escalate to user with all findings |
+| Pragma hits structural blocker | Return to Ontos for re-audit (Full) / orchestrator re-plan (Short) |
+| Dokimos DEFECTIVE (LOGIC_ERROR) after 3 fix cycles | Escalate to user with RCA |
+| Dokimos DEFECTIVE (PLAN_GAP) | Graphos G2 records; full restart from Archon (Full) / orchestrator re-plan (Short) |
 | Hermon detects merge conflicts | Report to user, await instructions |
-| Scrutator sub-step fails or times out | Dokimos continues without log trace (fail-open) |
+| Scrutator fails or times out | Dokimos continues without log trace (fail-open) |
+| Any role fails to produce output | Log the failure, report to user |
 
 Maximum loop iterations before user escalation:
 - Archon ↔ Ontos: 3 cycles
 - Pragma ↔ Dokimos: 3 cycles
 
+These limits prevent infinite loops while allowing reasonable iteration.
+
 ---
 
 ## Post-Execution Abstract Study
 
-After a complete pipeline run, you MAY perform a retrospective.
-This is NOT a pipeline role — it is an orchestrator-level
-self-reflection that does not modify files.
+After a complete pipeline run, the orchestrator MAY perform an
+abstract study. This is NOT a pipeline stage — it is an
+orchestrator-level retrospective that does not modify files.
 
-**Trigger:** After any run with at least one Archon↔Ontos
-revision cycle OR one Pragma↔Dokimos fix cycle. Also on user request.
+**Trigger:** Automatically after any pipeline run that included
+at least one Archon↔Ontos revision cycle OR one Pragma↔Dokimos
+fix cycle. Also triggered on explicit user request.
 
-**Inputs:** All role outputs plus pipeline metrics.
+**Inputs:** All role reports (Execution Plan, Audit Reports,
+Execution Reports, Verification Reports, Version Control Report)
+plus pipeline metrics (mode, loop counts, duration, approximation ratio).
 
-**Outputs:** Structured retrospective: root causes of cycles,
-pattern identification, efficiency assessment, recommendations.
+**Outputs:** Structured retrospective containing:
+- Root causes of revision/fix cycles
+- Pattern identification (recurring gap types, common omissions)
+- Pipeline efficiency assessment
+- Recommendations for future runs
 
-**Feedback:** Present to user. If confirmed as standing rule,
-record in project-level `.codex/AGENTS.md` for future runs.
+**Invoking authority:** Orchestrator only. No role invokes this.
+
+**Feedback:** Presented to user. If user confirms a recommendation
+as a standing rule, the orchestrator records it in project-level `.codex/AGENTS.md`
+or memory for future pipeline runs.
 
 ---
 
@@ -720,17 +787,16 @@ stay visible across runs and compactions.
 
 ## Concurrent Feature Execution (Worktree Isolation)
 
-Codex can prepare multiple non-conflicting features, executed **sequentially** within one
-session (Codex has no true parallel sub-agents). When tasks are parallelizable, use
-`Workspace: share` (Git Worktrees) or `Workspace: branch` so working trees do not collide;
-each track proceeds through Dokimos → Graphos G2 → its own Hermon branch, within the blast
-radius it declares (P1).
+Codex has no parallel sub-agents: parallelizable tracks run **sequentially** within one
+session. Give each track its own git worktree (`git worktree add ../<repo>-<track> -b <branch>`)
+so working trees do not collide; each track proceeds through Dokimos → Graphos G2 → its own
+Hermon branch, within the blast radius it declares (P1).
 
 ```mermaid
 flowchart LR
     A["Archon"] -->|"split plan"| O["Orchestrator"]
-    O -->|"Workspace: share"| P1["Pragma: Track A"]
-    O -->|"Workspace: share"| P2["Pragma: Track B"]
+    O -->|"git worktree"| P1["Pragma: Track A"]
+    O -->|"git worktree"| P2["Pragma: Track B"]
     P1 --> D1["Dokimos: Track A"]
     P2 --> D2["Dokimos: Track B"]
     D1 --> GA1["Graphos G2: Track A"]

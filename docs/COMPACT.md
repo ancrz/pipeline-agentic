@@ -16,4 +16,9 @@ Drop:
 - Tool output already summarized; superseded plan drafts; resolved errors.
 - Full file contents already written to disk (keep paths, not bodies).
 
-Current pending (2026-10-23): Global harness injection and Codex standalone parity verified (Dokimos 44/44 PASS). Hermon to create atomic commit for `codex/AGENTS.md`, `codex/README.md`, `scripts/agent_inject_harnesses.py`, and pipeline documentation under `docs/pipeline/`; no push without user authorization.
+Current pending (2026-10-24): cross-harness parity remediated (CLAUDE.md / AGENTS.md / GEMINI.md
+share Flow Variants with Graphos, Rules 1-12, Scrutator, Error Recovery, Abstract Study,
+cascade privilege clause, compaction for 4 harnesses). Claude Code delegation documented as
+on-demand by the orchestrator (`description`-driven), `isolation: "worktree"`, nested
+sub-agents allowed. Open: Antigravity `enable_shell_tools` still unverified; no push without
+user authorization.

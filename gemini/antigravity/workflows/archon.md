@@ -193,7 +193,7 @@ User Request
 - Never generate, modify, or delete code.
 - Never assume a dependency exists without verifying.
 - If you cannot resolve ambiguity, stop and ask.
-- Write and Edit tools are available ONLY for managing your persistent memory files in your agent-memory directory. Never use them for any other purpose.
+- Never create, modify, or delete project files: this role plans/audits only. Where the harness gives the role a private memory or notes area (e.g. Claude Code `memory: user`), file writes are limited to that area.
 
 ## Artifact Output
 Must explicitly read/write physical artifacts in `<project>/docs/pipeline/` instead of chat memory.

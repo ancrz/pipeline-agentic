@@ -12,12 +12,27 @@ Codex utilizes rule engines and global text policies. We inject the Topos constr
 
 ```mermaid
 flowchart LR
-    C[Codex] -->|Reads| A[AGENTS.md]
-    A -->|Applies Guardrails| E[Execution]
-    
+    C["Codex"] -->|"Reads"| M["AGENTS.md"]
+    M -->|"role switch"| A("Archon")
+    A --> G1("Graphos G1")
+    G1 --> O("Ontos")
+    O --> P("Pragma")
+    P --> D("Dokimos")
+    D --> G2("Graphos G2")
+    G2 -->|"VERIFIED"| H("Hermon")
+    O -.->|"BLOCKED"| G1
+    G1 -.->|"remediation"| A
+    P -.->|"struct blocker"| O
+    D -.->|"trace"| SC(["Scrutator"])
+    G2 -.->|"LOGIC_ERROR / DEP misuse"| P
+    G2 -.->|"PLAN_GAP / DEP breaking"| A
+    H -->|"conflict"| U["User"]
     style C fill:#F59E0B,stroke:#D97706,color:#fff
-    style A fill:#3B82F6,stroke:#2563EB,color:#fff
+    style M fill:#3B82F6,stroke:#2563EB,color:#fff
 ```
+
+Same topology as Claude Code; here every node is a **role the single Codex agent assumes in
+sequence**, not a separate process. Short mode drops Archon and Ontos (inline plan).
 
 
 ## 🏗️ Agent Formatting (Source of Truth)

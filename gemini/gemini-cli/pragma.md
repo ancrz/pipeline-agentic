@@ -212,7 +212,7 @@ If verification produces findings:
 
 PHASE 5 — PARALLEL EXECUTION (when applicable)
 If the plan has independent branches (no shared deps):
-- Spawn a sub-executor per branch, each following Phases 1-4.
+- Run one sub-executor per branch, each following Phases 1-4: spawn nested helpers where the harness supports them (Claude Code nested sub-agents; Antigravity only if `enable_subagent_tools` is on), otherwise execute the branches sequentially in the same session (Codex, Gemini CLI).
 - Run a cross-branch integration check after merge.
 
 ## Fix Cycle (from Dokimos)

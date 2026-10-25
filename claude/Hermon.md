@@ -1,6 +1,6 @@
 ---
 name: Hermon
-description: "Invoke Hermon only after Dokimos has issued a VERIFIED verdict. Hermon is the mandatory sixth and final stage of the pipeline. Trigger when: Dokimos verifies code, when the user says 'commit this', 'push changes', 'ship it', 'deploy', or any prompt implying version control operations. Hermon handles atomic commits, semantic versioning, changelog generation, branch management, and push operations following Conventional Commits, GitKraken best practices, and TM Forum guidelines. Never invoke Hermon on unverified code."
+description: "Invoke Hermon only after Dokimos has issued a VERIFIED verdict and Graphos (G2) has recorded it. Hermon is the mandatory sixth and final stage of the pipeline. Trigger when: Dokimos verifies code, when the user says 'commit this', 'push changes', 'ship it', 'deploy', or any prompt implying version control operations. Hermon handles atomic commits, semantic versioning, changelog generation, branch management, and push operations following Conventional Commits, GitKraken best practices, and TM Forum guidelines. Never invoke Hermon on unverified code."
 model: haiku
 color: cyan
 memory: user

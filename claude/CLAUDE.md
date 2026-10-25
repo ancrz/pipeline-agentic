@@ -67,12 +67,19 @@ its sub-agents inherit.
 - **MCP servers:** inherited by every sub-agent unless a `tools` allowlist narrows a spawn.
   Deferred tools are loaded via tool search before use.
 - **Skills:** session capabilities invoked explicitly via the Skill tool.
-- **Agent tool:** spawns sub-agents with per-spawn `model`, `permissionMode`,
-  `disallowedTools`. Sub-agents cannot spawn further sub-agents.
+- **Agent tool (on-demand delegation):** the chat/orchestrator decides *when* to delegate and
+  *to which* agent. Agent files in `~/.claude/agents/` only define each agent: `name` and
+  `description` are required, and the `description` is what drives delegation. Optional
+  frontmatter (`model`, `tools`/`disallowedTools`, `permissionMode`, `maxTurns`, `memory`,
+  `isolation`, `background`, …) sets defaults; a spawn may override `model`. The user can also
+  request an agent explicitly (by name or `@`-mention).
+- **Nesting & background:** sub-agents may spawn their own sub-agents (up to 3 levels by
+  default, `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`). Spawns from the main conversation start in
+  the background; the orchestrator waits for each stage's result before routing the next.
 - **Hooks:** pre/post tool-call handlers in `settings.json` — preprocess data without
   changing prompts.
-- **Git worktrees:** isolate parallel tracks (`Workspace: share`) so concurrent,
-  non-conflicting work does not collide.
+- **Git worktrees:** isolate parallel tracks with `isolation: "worktree"` (Agent tool
+  parameter or agent frontmatter) so concurrent, non-conflicting work does not collide.
 - **permissionMode** is the blast-radius control for file/exec operations:
   `default` | `acceptEdits` | `plan` | `bypassPermissions` | `dontAsk`. These are values the
   **user** sets; the orchestrator never escalates its own mode to route around a denial.
@@ -352,10 +359,13 @@ Dokimos: verify with ontological dependency tests
 
 ## Agent Pipeline (6-Stage)
 
-Six distinct agents exist in the pipeline. As the orchestrator in the Claude CLI, you
-**must invoke them by name** using the Agent tool. You do not assume their persona; you
-spawn them. In **Full** mode no stage may be skipped. In **Short** mode (see P2) Archon and
-Ontos are dropped and the orchestrator plans inline.
+Six distinct agents exist in the pipeline. In Claude Code the agent files do not schedule
+themselves: **you, the chat/orchestrator, decide on demand which stage to delegate next**,
+following the topology above, and delegate it through the Agent tool (each agent's
+`description` tells Claude Code when it fits; the user may also name or `@`-mention one). You
+do not assume their persona; you delegate to them and route their results. In **Full** mode
+no stage may be skipped. In **Short** mode (see P2) Archon and Ontos are dropped and the
+orchestrator plans inline.
 
 ### Tool Awareness Cascade
 
@@ -654,6 +664,9 @@ but the agent pipeline is reserved for execution work.
     - Since code changes are tracked in Git and reversible, prioritize momentum via user
       consent over hard-blocking. This never authorizes bypassing a guardrail or
       self-escalating privilege — those remain user-gated (P1 safety boundary).
+12. **Chat Agent Intercession:** the chat agent may intercede in or override any stage on
+    explicit user instruction, EXCEPT Graphos. Graphos's flow is imperative and mandatory: it
+    always runs to record success and failure states before routing continues.
 
 ---
 
@@ -708,9 +721,14 @@ CLAUDE.md or memory for future pipeline runs.
 
 ## Agent Capability Matrix
 
-All inter-agent routing is performed by the orchestrator (this main thread).
-Subagents cannot spawn other subagents. Each agent returns its output to the
-orchestrator, which decides the next routing step based on the agent's verdict.
+All inter-agent routing is performed by the orchestrator (this main thread). Claude Code
+allows nested sub-agents, but in this pipeline a stage agent never delegates to another
+*stage* agent: it may only spawn helpers for an isolated sub-task (e.g. Pragma's parallel
+sub-executors, Dokimos's Scrutator). Each agent returns its output to the orchestrator, which
+decides the next routing step based on the agent's verdict.
+
+This table records the frontmatter defaults of each agent file. They are defaults, not a
+schedule: which agent runs next is always the orchestrator's on-demand decision.
 
 | Agent | Model | permissionMode | disallowedTools | maxTurns |
 |-------|-------|----------------|-----------------|----------|
@@ -729,7 +747,8 @@ standalone pipeline stage). It reads Docker container logs
 categorization, timestamps, and recommended actions.
 
 Scrutator does not have a dedicated agent file (no Scrutator.md).
-It is spawned ephemerally by the orchestrator using inline parameters:
+It is spawned ephemerally — by the orchestrator, or by Dokimos as a nested helper — using
+inline parameters:
 - model: haiku
 - permissionMode: default
 - disallowedTools: NotebookEdit, Write, Edit
@@ -796,9 +815,9 @@ auto-evolutionary way.** Graphos maintains per-intent reinforcement graphs
 
 ## Concurrent Feature Execution (Worktree Isolation)
 The Orchestrator can execute multiple non-conflicting features simultaneously.
-When Archon identifies parallelizable tasks, the Orchestrator invokes execution engines
-(Pragma/Dokimos) using the `Workspace: share` (Git Worktrees) or `Workspace: branch`
-parameters.
+When Archon identifies parallelizable tasks, the Orchestrator delegates one Pragma/Dokimos
+track per task with `isolation: "worktree"` on the Agent call (each track gets a temporary
+git worktree, cleaned up automatically if it makes no changes).
 - This isolates execution environments so agents do not overwrite each other's working trees.
 - Each track proceeds independently through Dokimos → Graphos G2 → its own Hermon branch.
 - Agents utilize this modular concurrency to maximize token and temporal efficiency, within
@@ -807,8 +826,8 @@ parameters.
 ```mermaid
 flowchart LR
     A["Archon"] -->|"split plan"| O["Orchestrator"]
-    O -->|"Workspace: share"| P1["Pragma: Track A"]
-    O -->|"Workspace: share"| P2["Pragma: Track B"]
+    O -->|"isolation: worktree"| P1["Pragma: Track A"]
+    O -->|"isolation: worktree"| P2["Pragma: Track B"]
     P1 --> D1["Dokimos: Track A"]
     P2 --> D2["Dokimos: Track B"]
     D1 --> GA1["Graphos G2: Track A"]

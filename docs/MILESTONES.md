@@ -54,7 +54,20 @@ flowchart LR
     M2 --> M3["M3: symlink ~/.codex/roles created & documented ✅"]
     M3 --> M4["M4: runbook agent_inject_harnesses.py executed ✅"]
     M4 --> M5["M5: 44/44 tests verified (Dokimos) ✅"]
-    M5 --> M6["M6: atomic commit 🔄 (Hermon)"]
+    M5 --> M6["M6: atomic commit ✅ (Hermon)"]
+```
+
+## Intent: Cross-harness message parity (remediation 2026-10-24)
+
+```mermaid
+flowchart LR
+    I["Intent: Same message, harness semantics"] --> M1["M1: 14 divergences audited ✅"]
+    M1 --> M2["M2: shared sections regenerated from canonical text ✅"]
+    M2 --> M3["M3: Rule 11 + Rule 12 unified in all 3 ✅"]
+    M3 --> M4["M4: Claude on-demand delegation + isolation worktree ✅"]
+    M4 --> M5["M5: harness-neutral role bodies + READMEs ✅"]
+    M5 --> M6["M6: 21/21 parity checks, sync, json, mermaid ✅ (Dokimos)"]
+    M6 --> M7["M7: local commit + deploy ✅ (Hermon)"]
 ```
 
 ## Per-agent milestone summary

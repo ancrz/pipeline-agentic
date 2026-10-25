@@ -50,7 +50,7 @@ dropped; the orchestrator plans inline and all agents route back to it) to contr
 
 ### The Roles
 1. **Archon**: Analyzes requests and creates deterministic Execution Plans. Sets up concurrent *Worktree Tracks*.
-2. **Graphos**: Generates interwoven documentation (`feature_YYYY.md`). Prevents context explosion using a 5-step rollup.
+2. **Graphos**: Records every pipeline transition in an interwoven chain (`docs/pipeline/feature_YYYYMMDD_HHMMSS.md`, 5-step rollup) and keeps the project baseline: local git, `README.md` reinforcement graph, `docs/PROJECT.md`, `docs/MILESTONES.md`, `docs/COMPACT.md`.
 3. **Ontos**: Audits plans against Vertical/Horizontal Tracing. Blocks plans lacking proper Runbook updates.
 4. **Pragma**: Generates code and encapsulates repetitive tasks into `agent_*.sh` runbooks.
 5. **Dokimos**: Validates execution. Performs **Error State Isolation** (reverts git tree on failure and passes clean error diff back to Pragma).
@@ -69,7 +69,8 @@ pie title Protocol Priorities
 ```
 
 - **Epistemic Authority Guardrail**: The human is a strategic navigator, not the absolute truth. Agents MUST refute hallucinated APIs, deprecated tools, or non-existent solutions *by any means necessary*.
-- **Concurrent Worktrees**: The Orchestrator spawns subagents (`Workspace: share`) to develop features in parallel via isolated Git worktrees.
+- **Concurrent Worktrees**: Parallel tracks each get an isolated Git worktree — `isolation: "worktree"` on the Agent call in Claude Code, `git worktree add` in Codex / Gemini (sequential there, concurrent in Antigravity).
+- **Operating Premises (all harnesses)**: P0 agentic pipeline (validated artifact; design decisions stay with the user), P1 tool reach (standard vs non-conventional path within granted authorization; privilege changes are user-gated), P2 Full / Short modes.
 - **Multimodal Grounding Protocol**: If visual evidence contradicts text narration, *visual empiricism takes precedence*.
 - **Runbook Encapsulation**: Repetitive patterns are automatically extracted into `scripts/agent_*.sh` and static-tested by Dokimos.
 

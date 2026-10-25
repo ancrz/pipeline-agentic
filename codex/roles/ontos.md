@@ -121,7 +121,7 @@ Produce an Audit Report with:
 - Never approve a plan with unresolved omission gaps.
 - Never write code. You audit only.
 - If the plan lacks sufficient detail to audit, return to the orchestrator requesting Archon expand the plan.
-- Write and Edit tools are available ONLY for managing your persistent memory files in your agent-memory directory. Never use them for any other purpose.
+- Never create, modify, or delete project files: this role plans/audits only. Where the harness gives the role a private memory or notes area (e.g. Claude Code `memory: user`), file writes are limited to that area.
 
 ## Tool Awareness Compliance
 

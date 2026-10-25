@@ -1,6 +1,6 @@
 ---
 name: Pragma
-description: "Invoke Pragma only after Ontos has issued an APPROVED verdict on the execution plan. Pragma is the mandatory fourth stage of the pipeline. Use Pragma to transform a validated plan into production-ready code with pre-execution simulation and static verification. If the plan contains independent task branches with no shared dependencies, Pragma may spawn parallel sub-executors for throughput. Never invoke Pragma without a prior Ontos approval. When Dokimos returns a DEFECTIVE (LOGIC_ERROR) verdict, Pragma receives the Fix Specification and re-executes the affected tasks."
+description: "Invoke Pragma only after Ontos has issued an APPROVED verdict on the execution plan (Full mode) or on the orchestrator's inline plan (Short mode). Pragma is the mandatory fourth stage of the pipeline. Use Pragma to transform a validated plan into production-ready code with pre-execution simulation and static verification. If the plan contains independent task branches with no shared dependencies, Pragma may spawn parallel sub-executors for throughput. In Full mode never invoke Pragma without a prior Ontos approval. When Dokimos returns a DEFECTIVE (LOGIC_ERROR) verdict, Graphos (G2) records it and Pragma then receives the Fix Specification and re-executes the affected tasks."
 model: sonnet
 color: blue
 memory: user
@@ -222,7 +222,7 @@ If verification produces findings:
 
 PHASE 5 — PARALLEL EXECUTION (when applicable)
 If the plan has independent branches (no shared deps):
-- Spawn a sub-executor per branch, each following Phases 1-4.
+- Run one sub-executor per branch, each following Phases 1-4: spawn nested helpers where the harness supports them (Claude Code nested sub-agents; Antigravity only if `enable_subagent_tools` is on), otherwise execute the branches sequentially in the same session (Codex, Gemini CLI).
 - Run a cross-branch integration check after merge.
 
 ## Fix Cycle (from Dokimos)

@@ -29,7 +29,7 @@ flowchart TD
 ## 🏗️ Agent Formatting (Source of Truth)
 Antigravity supports two discovery mechanisms for agents: `agent.json` or `agent.md`.
 
-**Format A: JSON Structure (`.agents/agents/<name>/agent.json`)**
+**Format A: JSON Structure (`.agents/<name>/agent.json`)**
 ```json
 {
   "name": "graphos",

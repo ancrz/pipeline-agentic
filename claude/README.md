@@ -5,7 +5,7 @@
 
 
 ## 🌟 Status: Source of Truth
-The Claude structure represents the most mature and complete implementation of the Topos Pipeline. Its multi-agent paradigm, featuring strict YAML frontmatter and explicit model mapping (e.g., `sonnet` for heavy logic, `haiku` for documentation/version control), serves as the **Canonical Source of Truth**. This architecture has been successfully replicated and adapted across all other role-based harnesses (Codex, Antigravity) while respecting their specific form factors.
+The Claude structure represents the most mature and complete implementation of the Topos Pipeline. Its multi-agent paradigm, featuring strict YAML frontmatter and explicit model mapping (e.g., `sonnet` for heavy logic, `haiku` for documentation/version control), serves as the **Canonical Source of Truth**. This architecture has been successfully replicated and adapted across all other harnesses (Codex, Antigravity, Gemini CLI) while respecting their specific form factors; `scripts/sync_roles.py` propagates the role bodies.
 
 ## 📌 Implementation
 Claude Code relies on global context markdown instructions. This harness utilizes the `CLAUDE.md` master file to dictate the orchestration behavior.
@@ -53,8 +53,11 @@ Role: ...
 ```
 If an agent lacks this YAML block, it is effectively invisible to the routing table and cannot be spawned as a subagent.
 
+Only `name` and `description` are required; the other fields are defaults. Agent files do **not** schedule the pipeline: the chat/orchestrator decides on demand which agent to delegate to next (Claude Code matches the request against each `description`, and the user can name or `@`-mention an agent). That is why each `description` states its stage and when it applies (Full vs Short mode).
+
 ## 🚀 Setup
 Deploy the master rules to your global configuration:
 ```bash
 cp claude/CLAUDE.md ~/.claude/CLAUDE.md
+cp claude/{Archon,Graphos,Ontos,Pragma,Dokimos,Hermon}.md ~/.claude/agents/
 ```
